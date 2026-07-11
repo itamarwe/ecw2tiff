@@ -68,6 +68,17 @@ pub struct EcwHeader {
     pub epsg: Option<u16>,
 }
 
+impl EcwHeader {
+    /// Number of interleaved output channels per decoded pixel.
+    pub fn output_channels(&self) -> usize {
+        match self.compress_format {
+            CompressFormat::Grey => 1,
+            CompressFormat::Yuv => 3,
+            _ => self.nr_bands.min(3),
+        }
+    }
+}
+
 pub struct EcwFile {
     file: File,
     pub header: EcwHeader,

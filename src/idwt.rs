@@ -75,7 +75,6 @@ struct RegionLevel {
 
 pub struct Region {
     pub number_x: u32,
-    pub number_y: u32,
     pub format: CompressFormat,
     pub bands: usize,
     levels: Vec<RegionLevel>, // index == level, 0..=largest
@@ -270,36 +269,67 @@ fn pull_line(
         let lh1 = &cur.line1[cur.chunk(band, 1)];
         let hl1 = &cur.line1[cur.chunk(band, 2)];
         let hh1 = &cur.line1[cur.chunk(band, 3)];
-        let o = &mut out[band];
-        let mut b = 0usize; // rolling input index
-        let mut xoddeven = cur.output_level_start_x;
+        let o: &mut [f32] = out[band];
+        // Even/odd x phases are computed in separate branch-free passes so the
+        // loops can vectorize. Output sample i has parity
+        // (output_level_start_x + i) & 1; the rolling input index b advances
+        // after each even-parity sample, so a normalized even-start sequence
+        // is even(0), odd(1), even(1), odd(2), ... An odd-start sequence is
+        // the same after a leading odd(0) sample.
+        let start_odd = cur.output_level_start_x & 1 == 1;
         if y_line & 1 == 0 {
-            for v in o.iter_mut() {
-                if xoddeven & 1 == 0 {
-                    *v = ll1[b + 1]
-                        - (lh0[b + 1] + lh1[b + 1] + hl1[b] + hl1[b + 1]) * 0.5
-                        + (hh0[b] + hh0[b + 1] + hh1[b] + hh1[b + 1]) * 0.25;
-                    b += 1;
-                } else {
-                    *v = ((ll1[b] + ll1[b + 1]) - (hh0[b] + hh1[b])) * 0.5
-                        - (lh0[b] + lh0[b + 1] + lh1[b] + lh1[b + 1]) * 0.25
-                        + hl1[b];
-                }
-                xoddeven += 1;
+            let even = |b: usize| {
+                ll1[b + 1]
+                    - (lh0[b + 1] + lh1[b + 1] + hl1[b] + hl1[b + 1]) * 0.5
+                    + (hh0[b] + hh0[b + 1] + hh1[b] + hh1[b + 1]) * 0.25
+            };
+            let odd = |b: usize| {
+                ((ll1[b] + ll1[b + 1]) - (hh0[b] + hh1[b])) * 0.5
+                    - (lh0[b] + lh0[b + 1] + lh1[b] + lh1[b + 1]) * 0.25
+                    + hl1[b]
+            };
+            let rest = if start_odd {
+                let (first, rest) = o.split_first_mut().unwrap();
+                *first = odd(0);
+                rest
+            } else {
+                o
+            };
+            let n_pairs = rest.len() / 2;
+            let mut pairs = rest.chunks_exact_mut(2);
+            for (k, pair) in pairs.by_ref().enumerate() {
+                pair[0] = even(k);
+                pair[1] = odd(k + 1);
+            }
+            if let [last] = pairs.into_remainder() {
+                *last = even(n_pairs);
             }
         } else {
-            for v in o.iter_mut() {
-                if xoddeven & 1 == 0 {
-                    *v = ((ll0[b + 1] + ll1[b + 1]) - (hh0[b] + hh0[b + 1])) * 0.5
-                        + lh0[b + 1]
-                        - (hl0[b] + hl0[b + 1] + hl1[b] + hl1[b + 1]) * 0.25;
-                    b += 1;
-                } else {
-                    *v = (ll0[b] + ll0[b + 1] + ll1[b] + ll1[b + 1]) * 0.25
-                        + (lh0[b] + lh0[b + 1] + hl0[b] + hl1[b]) * 0.5
-                        + hh0[b];
-                }
-                xoddeven += 1;
+            let even = |b: usize| {
+                ((ll0[b + 1] + ll1[b + 1]) - (hh0[b] + hh0[b + 1])) * 0.5
+                    + lh0[b + 1]
+                    - (hl0[b] + hl0[b + 1] + hl1[b] + hl1[b + 1]) * 0.25
+            };
+            let odd = |b: usize| {
+                (ll0[b] + ll0[b + 1] + ll1[b] + ll1[b + 1]) * 0.25
+                    + (lh0[b] + lh0[b + 1] + hl0[b] + hl1[b]) * 0.5
+                    + hh0[b]
+            };
+            let rest = if start_odd {
+                let (first, rest) = o.split_first_mut().unwrap();
+                *first = odd(0);
+                rest
+            } else {
+                o
+            };
+            let n_pairs = rest.len() / 2;
+            let mut pairs = rest.chunks_exact_mut(2);
+            for (k, pair) in pairs.by_ref().enumerate() {
+                pair[0] = even(k);
+                pair[1] = odd(k + 1);
+            }
+            if let [last] = pairs.into_remainder() {
+                *last = even(n_pairs);
             }
         }
     }
@@ -312,9 +342,15 @@ fn pull_line(
 }
 
 impl Region {
-    /// Start reading `number_x` x `number_y` samples of the file rectangle
-    /// [start_x..=end_x] x [start_y..=end_y].
-    pub fn start(
+    /// Start reading output rows [first_row, first_row + n_rows) of a
+    /// `number_x` x `number_y` sampling of the file rectangle
+    /// [start_x..=end_x] x [start_y..=end_y]. Level selection and sampling
+    /// are computed from the full grid, and the entropy/DWT state is primed
+    /// at the strip's first line, so the produced scanlines are identical to
+    /// the corresponding rows of a full decode (first_row 0, n_rows
+    /// number_y). This is what makes strip-parallel decoding possible.
+    #[allow(clippy::too_many_arguments)]
+    pub fn start_rows(
         ecw: &EcwFile,
         start_x: u32,
         start_y: u32,
@@ -322,6 +358,8 @@ impl Region {
         end_y: u32,
         number_x: u32,
         number_y: u32,
+        first_row: u32,
+        n_rows: u32,
     ) -> Result<Region, Error> {
         let h = &ecw.header;
         let x_size = h.x_size;
@@ -334,6 +372,8 @@ impl Region {
             || number_y > 1 + end_y - start_y
             || number_x == 0
             || number_y == 0
+            || n_rows == 0
+            || first_row as u64 + n_rows as u64 > number_y as u64
         {
             return Err("invalid region".into());
         }
@@ -373,18 +413,26 @@ impl Region {
         let largest = lvl;
         let out_w = out_size_x as usize;
 
+        // Driver state for the strip: same global sampling as a full decode
+        // (start_line/increment from the full grid), fast-forwarded to
+        // first_row. The level machinery below is primed at the level-space
+        // line of that row.
+        let increment_y = out_size_y as f64 / number_y as f64;
+        let start_line = out_start_y as f64;
+        let current_line = start_line + increment_y * first_row as f64;
+        let strip_start_y = current_line as u32;
+
         let mut region = Region {
             number_x,
-            number_y,
             format: h.compress_format,
             bands,
             levels: Vec::with_capacity(largest + 1),
-            start_line: out_start_y as f64,
-            current_line: out_start_y as f64,
+            start_line,
+            current_line,
             increment_x: out_size_x as f64 / number_x as f64,
-            increment_y: out_size_y as f64 / number_y as f64,
+            increment_y,
             read_line: 1,
-            counter: 0,
+            counter: first_row as u64,
             out_w,
             ll: vec![0.0; bands * out_w],
         };
@@ -393,7 +441,7 @@ impl Region {
         let mut levels_rev: Vec<RegionLevel> = Vec::with_capacity(largest + 1);
         let mut o_start_x = out_start_x;
         let mut o_end_x = out_end_x;
-        let mut o_start_y = out_start_y;
+        let mut o_start_y = strip_start_y;
         let mut o_end_y = out_end_y;
         let mut o_size_x = out_size_x;
 
@@ -513,8 +561,9 @@ impl Region {
         Ok(region)
     }
 
-    /// Number of interleaved output channels per pixel.
-    pub fn channels(&self) -> usize {
+    /// Number of interleaved output channels per pixel (matches
+    /// `EcwHeader::output_channels`).
+    fn channels(&self) -> usize {
         match self.format {
             CompressFormat::Grey => 1,
             CompressFormat::Yuv => 3,
@@ -522,8 +571,10 @@ impl Region {
         }
     }
 
-    /// Read the next scanline as interleaved u8 samples
-    /// (`number_x * channels()` bytes).
+    /// Read the next scanline as interleaved u8 samples, advancing one output
+    /// row per call. Thread-safe with respect to `ecw`: block reads use
+    /// positioned I/O, so multiple Regions can decode strips of the same file
+    /// concurrently. `out` receives `number_x * channels()` bytes.
     pub fn read_scanline(&mut self, ecw: &EcwFile, out: &mut [u8]) -> Result<(), Error> {
         let n_line_y = self.current_line as u32;
 
@@ -545,38 +596,62 @@ impl Region {
             r.clamp(0, 255) as u8
         }
 
+        // At scale 1 the sample index is the identity; use contiguous loops
+        // the compiler can vectorize instead of the fixed-point gather.
+        let contiguous = inc_x == 1u64 << 32;
         match self.format {
             CompressFormat::Yuv => {
                 let (py, rest) = self.ll.split_at(self.out_w);
                 let (pu, pv) = rest.split_at(self.out_w);
-                let mut x_off = 0u64;
-                for i in 0..nx {
-                    let xi = (x_off >> 32) as usize;
-                    let y = py[xi];
-                    let u = pu[xi];
-                    let v = pv[xi];
-                    out[i * 3] = clamp_u8(y + 1.402f32 * v);
-                    out[i * 3 + 1] = clamp_u8(y + (-0.34414f32) * u + (-0.71414f32) * v);
-                    out[i * 3 + 2] = clamp_u8(y + 1.772f32 * u);
-                    x_off += inc_x;
+                if contiguous {
+                    let it = py[..nx].iter().zip(&pu[..nx]).zip(&pv[..nx]);
+                    for (px, ((&y, &u), &v)) in out.chunks_exact_mut(3).zip(it) {
+                        px[0] = clamp_u8(y + 1.402f32 * v);
+                        px[1] = clamp_u8(y + (-0.34414f32) * u + (-0.71414f32) * v);
+                        px[2] = clamp_u8(y + 1.772f32 * u);
+                    }
+                } else {
+                    let mut x_off = 0u64;
+                    for i in 0..nx {
+                        let xi = (x_off >> 32) as usize;
+                        let y = py[xi];
+                        let u = pu[xi];
+                        let v = pv[xi];
+                        out[i * 3] = clamp_u8(y + 1.402f32 * v);
+                        out[i * 3 + 1] = clamp_u8(y + (-0.34414f32) * u + (-0.71414f32) * v);
+                        out[i * 3 + 2] = clamp_u8(y + 1.772f32 * u);
+                        x_off += inc_x;
+                    }
                 }
             }
             CompressFormat::Grey => {
                 let p = &self.ll[..self.out_w];
-                let mut x_off = 0u64;
-                for i in 0..nx {
-                    out[i] = clamp_u8(p[(x_off >> 32) as usize]);
-                    x_off += inc_x;
+                if contiguous {
+                    for (o, &v) in out[..nx].iter_mut().zip(&p[..nx]) {
+                        *o = clamp_u8(v);
+                    }
+                } else {
+                    let mut x_off = 0u64;
+                    for i in 0..nx {
+                        out[i] = clamp_u8(p[(x_off >> 32) as usize]);
+                        x_off += inc_x;
+                    }
                 }
             }
             _ => {
                 // MULTI / RGB: independent bands, no color transform
                 for b in 0..ch {
                     let p = &self.ll[b * self.out_w..(b + 1) * self.out_w];
-                    let mut x_off = 0u64;
-                    for i in 0..nx {
-                        out[i * ch + b] = clamp_u8(p[(x_off >> 32) as usize]);
-                        x_off += inc_x;
+                    if contiguous {
+                        for (px, &v) in out.chunks_exact_mut(ch).zip(&p[..nx]) {
+                            px[b] = clamp_u8(v);
+                        }
+                    } else {
+                        let mut x_off = 0u64;
+                        for i in 0..nx {
+                            out[i * ch + b] = clamp_u8(p[(x_off >> 32) as usize]);
+                            x_off += inc_x;
+                        }
                     }
                 }
             }

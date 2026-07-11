@@ -6,9 +6,12 @@ mod tiff;
 
 use header::EcwFile;
 use idwt::Region;
+use std::collections::BTreeMap;
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 use std::process::exit;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{mpsc, Mutex};
 use tiff::{Codec, GeoInfo, TiffWriter};
 
 fn usage() -> ! {
@@ -25,6 +28,7 @@ OPTIONS:
     --scale <n>            decode at 1/n resolution, n a power of two (default 1)
     --region <x,y,w,h>     decode only this pixel rectangle (full-res coordinates)
     --tile <n>             output tile size, multiple of 16 (default 512)
+    --threads <n>          decode threads (default: all cores)
     --progress             print progress to stderr
 "
     );
@@ -39,6 +43,7 @@ struct Opts {
     scale: u32,
     region: Option<(u32, u32, u32, u32)>,
     tile: usize,
+    threads: Option<usize>,
     progress: bool,
 }
 
@@ -51,6 +56,7 @@ fn parse_args() -> Opts {
         scale: 1,
         region: None,
         tile: 512,
+        threads: None,
         progress: false,
     };
     let mut pos: Vec<String> = Vec::new();
@@ -90,6 +96,15 @@ fn parse_args() -> Opts {
                     eprintln!("error: --tile must be a multiple of 16 between 16 and 65520");
                     exit(2);
                 }
+            }
+            "--threads" => {
+                let n: usize =
+                    args.next().and_then(|v| v.parse().ok()).unwrap_or_else(|| usage());
+                if n == 0 {
+                    eprintln!("error: --threads must be at least 1");
+                    exit(2);
+                }
+                o.threads = Some(n);
             }
             "-h" | "--help" => usage(),
             _ => pos.push(a),
@@ -153,23 +168,7 @@ fn main() {
     let number_x = rw.div_ceil(opts.scale);
     let number_y = rh.div_ceil(opts.scale);
 
-    let mut region = match Region::start(
-        &ecw,
-        rx,
-        ry,
-        rx + rw - 1,
-        ry + rh - 1,
-        number_x,
-        number_y,
-    ) {
-        Ok(r) => r,
-        Err(e) => {
-            eprintln!("error: cannot start region: {e}");
-            exit(1);
-        }
-    };
-
-    let ch = region.channels();
+    let ch = h.output_channels();
     // Map common ER Mapper projection/datum names to EPSG codes.
     let epsg_from_names: Option<u16> = if h.datum == "WGS84" {
         if h.projection == "GEODETIC" {
@@ -217,26 +216,115 @@ fn main() {
         exit(1);
     });
 
-    let mut line = vec![0u8; number_x as usize * ch];
+    // Strip-parallel decode: the output is split into contiguous runs of
+    // tile rows, handed out dynamically to decoder threads. Each thread
+    // primes its own Region at the strip start (block reads use positioned
+    // I/O, so the EcwFile is shared), decodes scanlines, and compresses each
+    // completed tile row; the main thread writes rows to the file in order,
+    // overlapping decode, compression and I/O.
+    let tile = opts.tile;
+    let row_bytes = number_x as usize * ch;
+    let tiles_y = (number_y as usize).div_ceil(tile);
+    let n_threads = opts
+        .threads
+        .unwrap_or_else(|| std::thread::available_parallelism().map_or(1, |n| n.get()))
+        .min(tiles_y);
+    // ~4 units per thread balances load without paying the strip-priming
+    // cost (re-skipping into each level's entropy streams) too often.
+    let n_units = (n_threads * 4).clamp(1, tiles_y);
+    let next_unit = AtomicUsize::new(0);
+    let decode_err: Mutex<Option<String>> = Mutex::new(None);
+    let (tx, encoded_rows) = mpsc::sync_channel::<(usize, Vec<Vec<u8>>)>(n_threads * 2);
+    let ecw_ref = &ecw;
+    let codec = opts.codec;
+
     let t0 = std::time::Instant::now();
-    for y in 0..number_y {
-        if let Err(e) = region.read_scanline(&ecw, &mut line) {
-            eprintln!("error: decode failed at row {y}: {e}");
-            exit(1);
+    let mut rows_done = 0u64;
+    let io_result: std::io::Result<()> = std::thread::scope(|s| {
+        for _ in 0..n_threads {
+            let tx = tx.clone();
+            let next_unit = &next_unit;
+            let decode_err = &decode_err;
+            s.spawn(move || {
+                let mut row_buf = vec![0u8; tile * row_bytes];
+                loop {
+                    let u = next_unit.fetch_add(1, Ordering::Relaxed);
+                    if u >= n_units || decode_err.lock().unwrap().is_some() {
+                        return;
+                    }
+                    let tr0 = u * tiles_y / n_units;
+                    let tr1 = (u + 1) * tiles_y / n_units;
+                    let row0 = (tr0 * tile) as u32;
+                    let row1 = ((tr1 * tile).min(number_y as usize)) as u32;
+                    let mut region = match Region::start_rows(
+                        ecw_ref,
+                        rx,
+                        ry,
+                        rx + rw - 1,
+                        ry + rh - 1,
+                        number_x,
+                        number_y,
+                        row0,
+                        row1 - row0,
+                    ) {
+                        Ok(r) => r,
+                        Err(e) => {
+                            decode_err.lock().unwrap().get_or_insert(e);
+                            return;
+                        }
+                    };
+                    for tr in tr0..tr1 {
+                        let rows = tile.min(number_y as usize - tr * tile);
+                        for r in 0..rows {
+                            let line = &mut row_buf[r * row_bytes..(r + 1) * row_bytes];
+                            if let Err(e) = region.read_scanline(ecw_ref, line) {
+                                let msg = format!("row {}: {e}", tr * tile + r);
+                                decode_err.lock().unwrap().get_or_insert(msg);
+                                return;
+                            }
+                        }
+                        let enc = tiff::encode_tile_row(
+                            &row_buf, rows, number_x as usize, ch, tile, codec,
+                        );
+                        if tx.send((tr, enc)).is_err() {
+                            return; // writer bailed
+                        }
+                    }
+                }
+            });
         }
-        if let Err(e) = writer.push_scanline(&line) {
-            eprintln!("error: write failed at row {y}: {e}");
-            exit(1);
+        drop(tx);
+
+        // Write tile rows in order as they arrive.
+        let mut pending: BTreeMap<usize, Vec<Vec<u8>>> = BTreeMap::new();
+        let mut next_row = 0usize;
+        for (tr, enc) in encoded_rows {
+            pending.insert(tr, enc);
+            while let Some(enc) = pending.remove(&next_row) {
+                writer.write_tile_row(next_row, &enc)?;
+                rows_done += tile.min(number_y as usize - next_row * tile) as u64;
+                next_row += 1;
+                if opts.progress {
+                    let pct = rows_done as f64 * 100.0 / number_y as f64;
+                    let rate =
+                        rows_done as f64 * number_x as f64 / t0.elapsed().as_secs_f64() / 1e6;
+                    eprint!("\r{pct:6.2}%  {rate:7.1} Mpx/s ");
+                    let _ = std::io::stderr().flush();
+                }
+            }
         }
-        if opts.progress && (y % 1024 == 0 || y + 1 == number_y) {
-            let pct = (y + 1) as f64 * 100.0 / number_y as f64;
-            let rate = (y + 1) as f64 * number_x as f64 / t0.elapsed().as_secs_f64() / 1e6;
-            eprint!("\r{pct:6.2}%  {rate:7.1} Mpx/s ");
-            let _ = std::io::stderr().flush();
-        }
-    }
+        Ok(())
+    });
     if opts.progress {
         eprintln!();
+    }
+    if let Some(e) = decode_err.into_inner().unwrap() {
+        eprintln!("error: decode failed: {e}");
+        exit(1);
+    }
+    if let Err(e) = io_result {
+        eprintln!("error: write failed: {e}");
+        exit(1);
     }
     match writer.finish() {
         Ok(_) => {

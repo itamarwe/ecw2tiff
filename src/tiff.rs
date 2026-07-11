@@ -34,10 +34,8 @@ pub struct TiffWriter<W: Write + Seek> {
     codec: Codec,
     tile: usize,
     geo: Option<GeoInfo>,
-    // scanline accumulator for the current tile row
-    row_buf: Vec<u8>,
-    rows_in_buf: usize,
-    row_base: u64, // image row index of row_buf[0]
+    tiles_x: usize,
+    // indexed by tile number (row-major), filled as tile rows are written
     tile_offsets: Vec<u64>,
     tile_bytecounts: Vec<u64>,
 }
@@ -75,6 +73,63 @@ struct IfdEntry {
     data: Vec<u8>,
 }
 
+/// Assemble and compress one row of tiles from `rows` scanlines
+/// (`width * channels` bytes each) in `row_buf`. Tiles are compressed in
+/// parallel; the returned vector is ordered left to right for
+/// `TiffWriter::write_tile_row`.
+pub fn encode_tile_row(
+    row_buf: &[u8],
+    rows: usize,
+    width: usize,
+    channels: usize,
+    tile: usize,
+    codec: Codec,
+) -> Vec<Vec<u8>> {
+    let ch = channels;
+    let tiles_x = width.div_ceil(tile);
+    (0..tiles_x)
+        .into_par_iter()
+        .map(|tx| {
+            // Assemble the (edge-padded) tile.
+            let mut t = vec![0u8; tile * tile * ch];
+            let x0 = tx * tile;
+            for ty in 0..tile {
+                let sy = ty.min(rows - 1); // pad bottom by replication
+                let src_row = &row_buf[sy * width * ch..(sy + 1) * width * ch];
+                let dst = &mut t[ty * tile * ch..(ty + 1) * tile * ch];
+                for x in 0..tile {
+                    let sx = (x0 + x).min(width - 1); // pad right by replication
+                    dst[x * ch..(x + 1) * ch]
+                        .copy_from_slice(&src_row[sx * ch..(sx + 1) * ch]);
+                }
+            }
+            match codec {
+                Codec::Jpeg(q) => encode_jpeg(&t, tile, ch, q),
+                Codec::Deflate(level) => {
+                    let mut z = ZlibEncoder::new(Vec::new(), flate2::Compression::new(level));
+                    z.write_all(&t).unwrap();
+                    z.finish().unwrap()
+                }
+                Codec::None => t,
+            }
+        })
+        .collect()
+}
+
+fn encode_jpeg(t: &[u8], tile: usize, ch: usize, quality: u8) -> Vec<u8> {
+    let mut out = Vec::new();
+    let mut enc = JpegEncoder::new(&mut out, quality);
+    enc.set_sampling_factor(jpeg_encoder::SamplingFactor::F_2_2);
+    let color = if ch == 1 {
+        ColorType::Luma
+    } else {
+        ColorType::Rgb
+    };
+    enc.encode(t, tile as u16, tile as u16, color)
+        .expect("jpeg encode");
+    out
+}
+
 impl<W: Write + Seek> TiffWriter<W> {
     pub fn new(
         mut w: W,
@@ -103,94 +158,27 @@ impl<W: Write + Seek> TiffWriter<W> {
             codec,
             tile,
             geo,
-            row_buf: vec![0u8; tile * width as usize * channels],
-            rows_in_buf: 0,
-            row_base: 0,
-            tile_offsets: Vec::with_capacity(tiles_x * tiles_y),
-            tile_bytecounts: Vec::with_capacity(tiles_x * tiles_y),
+            tiles_x,
+            tile_offsets: vec![0; tiles_x * tiles_y],
+            tile_bytecounts: vec![0; tiles_x * tiles_y],
         })
     }
 
-    pub fn push_scanline(&mut self, line: &[u8]) -> io::Result<()> {
-        let rw = self.width as usize * self.channels;
-        assert_eq!(line.len(), rw);
-        let off = self.rows_in_buf * rw;
-        self.row_buf[off..off + rw].copy_from_slice(line);
-        self.rows_in_buf += 1;
-        if self.rows_in_buf == self.tile {
-            self.flush_tile_row()?;
-        }
-        Ok(())
-    }
-
-    fn flush_tile_row(&mut self) -> io::Result<()> {
-        if self.rows_in_buf == 0 {
-            return Ok(());
-        }
-        let tile = self.tile;
-        let ch = self.channels;
-        let width = self.width as usize;
-        let rows = self.rows_in_buf;
-        let tiles_x = self.width.div_ceil(tile as u64) as usize;
-        let codec = self.codec;
-        let row_buf = &self.row_buf;
-
-        // Compress all tiles of this row in parallel.
-        let encoded: Vec<Vec<u8>> = (0..tiles_x)
-            .into_par_iter()
-            .map(|tx| {
-                // Assemble the (edge-padded) tile.
-                let mut t = vec![0u8; tile * tile * ch];
-                let x0 = tx * tile;
-                for ty in 0..tile {
-                    let sy = ty.min(rows - 1); // pad bottom by replication
-                    let src_row = &row_buf[sy * width * ch..(sy + 1) * width * ch];
-                    let dst = &mut t[ty * tile * ch..(ty + 1) * tile * ch];
-                    for x in 0..tile {
-                        let sx = (x0 + x).min(width - 1); // pad right by replication
-                        dst[x * ch..(x + 1) * ch]
-                            .copy_from_slice(&src_row[sx * ch..(sx + 1) * ch]);
-                    }
-                }
-                match codec {
-                    Codec::Jpeg(q) => {
-                        let mut out = Vec::new();
-                        let mut enc = JpegEncoder::new(&mut out, q);
-                        enc.set_sampling_factor(jpeg_encoder::SamplingFactor::F_2_2);
-                        let color = if ch == 1 {
-                            ColorType::Luma
-                        } else {
-                            ColorType::Rgb
-                        };
-                        enc.encode(&t, tile as u16, tile as u16, color)
-                            .expect("jpeg encode");
-                        out
-                    }
-                    Codec::Deflate(level) => {
-                        let mut z =
-                            ZlibEncoder::new(Vec::new(), flate2::Compression::new(level));
-                        z.write_all(&t).unwrap();
-                        z.finish().unwrap()
-                    }
-                    Codec::None => t,
-                }
-            })
-            .collect();
-
-        for e in encoded {
+    /// Append one row of pre-encoded tiles (from `encode_tile_row`) to the
+    /// file. Rows may be written in any order; offsets are recorded by index.
+    pub fn write_tile_row(&mut self, tile_row: usize, encoded: &[Vec<u8>]) -> io::Result<()> {
+        assert_eq!(encoded.len(), self.tiles_x);
+        for (i, e) in encoded.iter().enumerate() {
             let pos = self.w.stream_position()?;
-            self.w.write_all(&e)?;
-            self.tile_offsets.push(pos);
-            self.tile_bytecounts.push(e.len() as u64);
+            self.w.write_all(e)?;
+            let idx = tile_row * self.tiles_x + i;
+            self.tile_offsets[idx] = pos;
+            self.tile_bytecounts[idx] = e.len() as u64;
         }
-        self.row_base += rows as u64;
-        self.rows_in_buf = 0;
         Ok(())
     }
 
     pub fn finish(mut self) -> io::Result<W> {
-        self.flush_tile_row()?;
-
         let mut entries: Vec<IfdEntry> = Vec::new();
         let push_shorts = |tag: u16, vals: &[u16]| IfdEntry {
             tag,
