@@ -4,6 +4,7 @@
 //! parallel) and flushed each time `tile_size` rows accumulate.
 
 use flate2::write::ZlibEncoder;
+#[cfg(not(feature = "turbo"))]
 use jpeg_encoder::{ColorType, Encoder as JpegEncoder};
 use rayon::prelude::*;
 use std::io::{self, Seek, SeekFrom, Write};
@@ -116,6 +117,39 @@ pub fn encode_tile_row(
         .collect()
 }
 
+/// 4:2:0 chroma subsampling for color, matching the YCbCrSubsampling tag.
+#[cfg(feature = "turbo")]
+fn encode_jpeg(t: &[u8], tile: usize, ch: usize, quality: u8) -> Vec<u8> {
+    use std::cell::RefCell;
+    thread_local! {
+        static COMPRESSOR: RefCell<turbojpeg::Compressor> =
+            RefCell::new(turbojpeg::Compressor::new().expect("jpeg compressor"));
+    }
+    let image = turbojpeg::Image {
+        pixels: t,
+        width: tile,
+        pitch: tile * ch,
+        height: tile,
+        format: if ch == 1 {
+            turbojpeg::PixelFormat::GRAY
+        } else {
+            turbojpeg::PixelFormat::RGB
+        },
+    };
+    COMPRESSOR.with(|c| {
+        let mut c = c.borrow_mut();
+        c.set_quality(quality as i32).expect("jpeg quality");
+        c.set_subsamp(if ch == 1 {
+            turbojpeg::Subsamp::Gray
+        } else {
+            turbojpeg::Subsamp::Sub2x2
+        })
+        .expect("jpeg subsampling");
+        c.compress_to_owned(image).expect("jpeg encode").to_vec()
+    })
+}
+
+#[cfg(not(feature = "turbo"))]
 fn encode_jpeg(t: &[u8], tile: usize, ch: usize, quality: u8) -> Vec<u8> {
     let mut out = Vec::new();
     let mut enc = JpegEncoder::new(&mut out, quality);

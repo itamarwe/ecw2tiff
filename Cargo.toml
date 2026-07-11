@@ -9,6 +9,13 @@ license = "MIT"
 flate2 = "1"
 jpeg-encoder = { version = "0.6", features = ["std"] }
 rayon = "1"
+turbojpeg = { version = "1", optional = true }
+
+[features]
+default = ["turbo"]
+# JPEG tile encoding via libjpeg-turbo (SIMD; needs the native library).
+# Build with --no-default-features for a pure-Rust binary.
+turbo = ["dep:turbojpeg"]
 
 [profile.release]
 lto = true

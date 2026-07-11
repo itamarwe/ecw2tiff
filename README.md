@@ -11,6 +11,18 @@ directly from the on-disk format.
 cargo build --release
 ```
 
+By default JPEG tiles are encoded with libjpeg-turbo (SIMD), which must be
+present on the system (`brew install jpeg-turbo` on macOS,
+`apt install libturbojpeg0-dev` on Debian/Ubuntu). For a pure-Rust binary
+with no native dependencies, build with:
+
+```bash
+cargo build --release --no-default-features
+```
+
+(JPEG encoding is then ~20% slower end to end; all other codecs are
+unaffected.)
+
 ## Usage
 
 ```bash
@@ -30,6 +42,9 @@ ecw2tiff --region 51200,76800,4096,4096 input.ecw crop.tif
 ecw2tiff --compress jpeg:92    input.ecw out.tif
 ecw2tiff --compress deflate:6  input.ecw out.tif   # lossless
 ecw2tiff --compress none       input.ecw out.tif
+
+# limit decoding to 4 threads (default: all cores)
+ecw2tiff --threads 4 input.ecw out.tif
 ```
 
 Output is always little-endian BigTIFF (safe for >4 GB images), tiled
@@ -38,8 +53,16 @@ directory carrying the EPSG code when it is known (stated by the file for
 ECW v3; mapped from `GEODETIC`/`NUTM*`/`SUTM*` + `WGS84` names for v2).
 GDAL/QGIS read the result directly.
 
-Decode speed is roughly 50–70 Mpixel/s on an Apple-silicon Mac; a
-60-gigapixel mosaic converts in about 15 minutes.
+Decoding is parallelized across horizontal strips (one per core, tile
+compression and file I/O overlapped). On an Apple-silicon Mac (M1,
+4P+4E) region decodes reach ~190 Mpixel/s and a sustained full
+conversion of a 59-gigapixel mosaic runs at ~130 Mpixel/s — under
+8 minutes end to end, versus ~15 minutes single-threaded (50–70
+Mpixel/s). Strip-parallel output is byte-identical to a
+single-threaded decode.
+Peak memory is about `image_width * tile * 3 * threads` bytes (~4 GB for
+a 276k-pixel-wide mosaic on 8 cores); reduce `--threads` or `--tile` on
+memory-constrained machines.
 
 ## How it works
 
