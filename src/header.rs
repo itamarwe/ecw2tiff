@@ -130,6 +130,7 @@ impl EcwFile {
     }
 
     fn open_v2(mut file: File) -> io::Result<EcwFile> {
+        let file_len = file.metadata()?.len();
         let mut r = Rd { f: &mut file };
         if r.u8()? != b'e' {
             return Err(bad("not an ECW v2 file".into()));
@@ -150,6 +151,9 @@ impl EcwFile {
         let y_block_size = r.u16_be()? as u32;
         if num_levels == 0 || nr_bands == 0 || scale_factor == 0.0 {
             return Err(bad("invalid ECW header".into()));
+        }
+        if x_block_size == 0 || y_block_size == 0 {
+            return Err(bad("zero block size".into()));
         }
         if nr_sidebands != MAX_SIDEBAND {
             return Err(bad(format!("unsupported sideband count {nr_sidebands}")));
@@ -215,14 +219,23 @@ impl EcwFile {
             first_block_number += nr_x_blocks as u64 * nr_y_blocks as u64;
         }
         let total_blocks = first_block_number;
+        // Loose sanity cap: a real table packs to roughly a byte per block at
+        // best, so more blocks than file bytes means a forged header (and an
+        // unbounded allocation below).
+        if total_blocks > file_len {
+            return Err(bad("block count exceeds file size".into()));
+        }
 
         // Block offset table: u32(BE) packed length, u8 encode format,
         // then (packed_length - 1) bytes of payload.
         let packed_length = r.u32_be()? as usize;
         let table_entries = total_blocks as usize + 1;
         let unpacked_len = table_entries * 8;
-        if packed_length > unpacked_len + 1 {
-            return Err(bad("block table larger than expected".into()));
+        if packed_length == 0
+            || packed_length as u64 > file_len
+            || packed_length > unpacked_len + 1
+        {
+            return Err(bad("bad block table size".into()));
         }
         let fmt = r.u8()?;
         let mut payload = vec![0u8; packed_length - 1];
@@ -234,6 +247,12 @@ impl EcwFile {
             .map(|c| u64::from_le_bytes(c.try_into().unwrap()))
             .collect();
         let first_block_offset = file.stream_position()?;
+        // The sentinel (last) offset is the total block data length; with the
+        // monotonicity check below this keeps every block inside the file.
+        let last = *offsets.last().unwrap();
+        if first_block_offset.checked_add(last).is_none_or(|end| end > file_len) {
+            return Err(bad("block data extends past end of file".into()));
+        }
         // Convert sentinel-style offsets into absolute (offset, length) pairs.
         let mut block_table = Vec::with_capacity(total_blocks as usize);
         for w in offsets.windows(2) {

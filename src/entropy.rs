@@ -261,7 +261,10 @@ pub struct HuffTree {
 }
 
 impl HuffTree {
-    /// Parse a packed tree; advances `pos` past the tree bytes.
+    /// Parse a packed tree (preorder: 0 = internal node followed by its two
+    /// subtrees, nonzero = leaf); advances `pos` past the tree bytes.
+    /// Iterative with an explicit stack: a hostile deep tree must not be able
+    /// to overflow the call stack.
     pub fn parse(data: &[u8], pos: &mut usize) -> Result<HuffTree, Error> {
         if data.len() < *pos + 2 {
             return Err("huffman tree truncated".into());
@@ -274,46 +277,59 @@ impl HuffTree {
             root: 0,
         };
         let mut budget = n_nodes;
-        let root = t.parse_node(data, pos, &mut budget)?;
-        t.root = root;
-        Ok(t)
-    }
-
-    fn parse_node(&mut self, data: &[u8], pos: &mut usize, budget: &mut u32) -> Result<u32, Error> {
-        *budget = budget.wrapping_sub(1);
-        if *budget == 0 {
-            return Err("huffman tree node budget exhausted".into());
-        }
-        let byte = *data.get(*pos).ok_or("huffman tree truncated")?;
-        *pos += 1;
-        if byte == 0 {
-            let idx = self.nodes.len() as u32;
-            self.nodes.push(HuffNode::Internal(0, 0)); // placeholder
-            let c0 = self.parse_node(data, pos, budget)?;
-            let c1 = self.parse_node(data, pos, budget)?;
-            self.nodes[idx as usize] = HuffNode::Internal(c0, c1);
-            Ok(idx)
-        } else {
-            let value: u16 = if byte & HUFF_SMALL_SYMBOL != 0 {
-                (((byte & 0x30) as u16) << HUFF_SMALL_SHIFT) | (byte & 0x0f) as u16
+        // internal nodes whose children are still being parsed: (index, next child slot)
+        let mut stack: Vec<(u32, u8)> = Vec::new();
+        loop {
+            budget = budget.wrapping_sub(1);
+            if budget == 0 {
+                return Err("huffman tree node budget exhausted".into());
+            }
+            let byte = *data.get(*pos).ok_or("huffman tree truncated")?;
+            *pos += 1;
+            let idx = t.nodes.len() as u32;
+            if byte == 0 {
+                t.nodes.push(HuffNode::Internal(0, 0)); // children patched below
             } else {
-                if data.len() < *pos + 2 {
-                    return Err("huffman tree truncated".into());
+                let value: u16 = if byte & HUFF_SMALL_SYMBOL != 0 {
+                    (((byte & 0x30) as u16) << HUFF_SMALL_SHIFT) | (byte & 0x0f) as u16
+                } else {
+                    if data.len() < *pos + 2 {
+                        return Err("huffman tree truncated".into());
+                    }
+                    let v = u16::from_le_bytes([data[*pos], data[*pos + 1]]);
+                    *pos += 2;
+                    v
+                };
+                let sym = if value & RUN_MASK != 0 {
+                    HuffSymbol::ZeroRun((value & MAX_RUN_LENGTH).wrapping_sub(1))
+                } else if value & SIGN_MASK != 0 {
+                    HuffSymbol::Value(-((value & VALUE_MASK) as i16))
+                } else {
+                    HuffSymbol::Value(value as i16)
+                };
+                t.nodes.push(HuffNode::Leaf(sym));
+            }
+            if idx != 0 {
+                let &(parent, slot) = stack.last().unwrap();
+                if let HuffNode::Internal(c0, c1) = &mut t.nodes[parent as usize] {
+                    if slot == 0 {
+                        *c0 = idx;
+                    } else {
+                        *c1 = idx;
+                    }
                 }
-                let v = u16::from_le_bytes([data[*pos], data[*pos + 1]]);
-                *pos += 2;
-                v
-            };
-            let sym = if value & RUN_MASK != 0 {
-                HuffSymbol::ZeroRun((value & MAX_RUN_LENGTH).wrapping_sub(1))
-            } else if value & SIGN_MASK != 0 {
-                HuffSymbol::Value(-((value & VALUE_MASK) as i16))
-            } else {
-                HuffSymbol::Value(value as i16)
-            };
-            let idx = self.nodes.len() as u32;
-            self.nodes.push(HuffNode::Leaf(sym));
-            Ok(idx)
+                if slot == 0 {
+                    stack.last_mut().unwrap().1 = 1;
+                } else {
+                    stack.pop();
+                }
+            }
+            if byte == 0 {
+                stack.push((idx, 0));
+            }
+            if stack.is_empty() {
+                return Ok(t); // root subtree complete
+            }
         }
     }
 
@@ -362,7 +378,11 @@ pub fn unpack_data(fmt: u8, packed: &[u8], raw_length: usize) -> Result<Vec<u8>,
                 let v = u16::from_le_bytes([packed[pos], packed[pos + 1]]);
                 pos += 2;
                 if v & RUN_MASK != 0 {
-                    let zero_run = (v & MAX_RUN_LENGTH) as usize - 1;
+                    let run = (v & MAX_RUN_LENGTH) as usize;
+                    if run == 0 {
+                        return Err("zero-length run".into());
+                    }
+                    let zero_run = run - 1;
                     let nzero = if zero_run >= word_count {
                         let n = word_count + 1;
                         word_count = 0;
@@ -547,7 +567,11 @@ impl SbDecoder {
                     let v = u16::from_le_bytes([data[*pos], data[*pos + 1]]);
                     *pos += 2;
                     if v & RUN_MASK != 0 {
-                        let zero_run = ((v & MAX_RUN_LENGTH) - 1) as usize;
+                        let run = (v & MAX_RUN_LENGTH) as usize;
+                        if run == 0 {
+                            return Err("zero-length run".into());
+                        }
+                        let zero_run = run - 1;
                         if zero_run >= count {
                             *pending = (zero_run - count) as u32;
                             return Ok(());
@@ -683,7 +707,11 @@ impl SbDecoder {
             let v = u16::from_le_bytes([data[*pos], data[*pos + 1]]);
             *pos += 2;
             if v & RUN_MASK != 0 {
-                let zero_run = ((v & MAX_RUN_LENGTH) - 1) as usize;
+                let run = (v & MAX_RUN_LENGTH) as usize;
+                if run == 0 {
+                    return Err("zero-length run".into());
+                }
+                let zero_run = run - 1;
                 let nzero = if zero_run >= count {
                     *pending = (zero_run - count) as u32;
                     let n = count + 1;
@@ -748,5 +776,54 @@ impl SbDecoder {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn huffman_parse_and_decode() {
+        // node count 5 (stored as count, budget = count + 1), then preorder:
+        // internal, leaf Value(5) (small symbol), internal,
+        // leaf Value(1) (small symbol), leaf ZeroRun(2) (full u16 0x8003)
+        let mut data = vec![0x05, 0x00, 0x00, 0x45, 0x00, 0x41, 0x01, 0x03, 0x80];
+        let mut pos = 0usize;
+        let tree = HuffTree::parse(&data, &mut pos).unwrap();
+        assert_eq!(pos, 9);
+        // codes: 0 -> Value(5), 10 -> Value(1), 11 -> ZeroRun(2);
+        // LSB-first bit sequence 0,1,0,1,1 = 0x1A
+        data.push(0x1A);
+        let mut bitpos = pos * 8;
+        assert!(matches!(tree.decode(&data, &mut bitpos), HuffSymbol::Value(5)));
+        assert!(matches!(tree.decode(&data, &mut bitpos), HuffSymbol::Value(1)));
+        assert!(matches!(tree.decode(&data, &mut bitpos), HuffSymbol::ZeroRun(2)));
+    }
+
+    #[test]
+    fn huffman_deep_tree_no_stack_overflow() {
+        // Left-degenerate chain of 30000 internal nodes: valid, but would
+        // overflow the call stack with a recursive parser.
+        const DEPTH: usize = 30000;
+        let mut data = vec![0xff, 0xff];
+        data.extend(std::iter::repeat(0u8).take(DEPTH));
+        data.extend(std::iter::repeat(0x45u8).take(DEPTH + 1));
+        let mut pos = 0usize;
+        let tree = HuffTree::parse(&data, &mut pos).unwrap();
+        assert_eq!(tree.nodes.len(), 2 * DEPTH + 1);
+    }
+
+    #[test]
+    fn huffman_truncated_tree_errors() {
+        let mut pos = 0usize;
+        assert!(HuffTree::parse(&[0x05, 0x00, 0x00, 0x45], &mut pos).is_err());
+    }
+
+    #[test]
+    fn run_zero_rejects_zero_length_run() {
+        // one RUN_MASK word with run length 0
+        let packed = 0x8000u16.to_le_bytes();
+        assert!(unpack_data(ENCODE_RUN_ZERO, &packed, 4).is_err());
     }
 }

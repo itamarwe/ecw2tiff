@@ -187,6 +187,9 @@ pub fn open_v3(mut file: File) -> io::Result<EcwFile> {
     if num_levels == 0 || nr_bands == 0 || nr_sidebands != 4 {
         return Err(bad("invalid ECW v3 ihdr".into()));
     }
+    if x_block_size == 0 || y_block_size == 0 {
+        return Err(bad("zero block size".into()));
+    }
 
     let g = gtif
         .map(|d| parse_gtif(&d))
@@ -277,7 +280,7 @@ pub fn open_v3(mut file: File) -> io::Result<EcwFile> {
     for e in raw.chunks_exact(12) {
         let off = u64::from_le_bytes(e[0..8].try_into().unwrap());
         let len = u32::from_le_bytes(e[8..12].try_into().unwrap());
-        if len != 0 && (off + len as u64 > file_len) {
+        if len != 0 && off.checked_add(len as u64).is_none_or(|end| end > file_len) {
             return Err(bad("v3 block entry out of range".into()));
         }
         block_table.push((off, len));
