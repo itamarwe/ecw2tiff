@@ -1,0 +1,15 @@
+[package]
+name = "ecw2tiff"
+version = "0.1.0"
+edition = "2021"
+description = "From-scratch ECW (v2/v3) decoder and BigTIFF converter"
+license = "MIT"
+
+[dependencies]
+flate2 = "1"
+jpeg-encoder = { version = "0.6", features = ["std"] }
+rayon = "1"
+
+[profile.release]
+lto = true
+codegen-units = 1
