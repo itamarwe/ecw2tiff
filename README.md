@@ -5,6 +5,20 @@ tiled BigTIFF with JPEG or Deflate compression. No ECW SDK, GDAL, or other
 imaging libraries are used for decoding — the wavelet codec is implemented
 directly from the on-disk format.
 
+## Install
+
+Prebuilt binaries for macOS (arm64/x64), Linux (x64/arm64) and Windows
+(x64) ship on npm:
+
+```bash
+npx ecw2tiff --info input.ecw    # run without installing
+npm install -g ecw2tiff          # or install globally
+```
+
+The npm binaries are dependency-free pure-Rust builds (JPEG encoding is
+~20% slower than a source build with libjpeg-turbo — see below). Static
+binaries are also attached to each [GitHub release](https://github.com/itamarwe/ecw2tiff/releases).
+
 ## Build
 
 ```bash
@@ -102,6 +116,19 @@ Format reference: the ECW v2 structure follows the publicly released
 libecwj2-3.3 sources (Earth Resource Mapping, 2006); the v3 container was
 reverse-engineered from real files. All code here is an independent
 implementation.
+
+## Releasing
+
+Bump the version in `Cargo.toml` and `npm/ecw2tiff/package.json`
+(including its `optionalDependencies`), then push a matching tag:
+
+```bash
+git tag v0.1.1 && git push --tags
+```
+
+The release workflow builds binaries for all five targets, publishes the
+npm packages (needs the `NPM_TOKEN` repository secret) and attaches the
+binaries to a GitHub release.
 
 ## License
 

@@ -1,0 +1,106 @@
+# On a v* tag: build self-contained binaries for each platform, publish the
+# npm platform packages + the ecw2tiff launcher package, and attach the
+# binaries to a GitHub release.
+#
+# npm binaries are built with --no-default-features (pure Rust, no libjpeg-
+# turbo) so they run anywhere with zero native dependencies. Requires the
+# NPM_TOKEN repository secret (npm automation token with publish rights).
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            runner: macos-14
+            npm_os: darwin
+            npm_cpu: arm64
+          - target: x86_64-apple-darwin
+            runner: macos-13
+            npm_os: darwin
+            npm_cpu: x64
+          - target: x86_64-unknown-linux-musl
+            runner: ubuntu-24.04
+            npm_os: linux
+            npm_cpu: x64
+          - target: aarch64-unknown-linux-musl
+            runner: ubuntu-24.04-arm
+            npm_os: linux
+            npm_cpu: arm64
+          - target: x86_64-pc-windows-msvc
+            runner: windows-2022
+            npm_os: win32
+            npm_cpu: x64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install musl toolchain
+        if: contains(matrix.target, 'musl')
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+      - name: Build
+        run: |
+          rustup target add ${{ matrix.target }}
+          cargo build --release --no-default-features --target ${{ matrix.target }}
+      - name: Run tests
+        run: cargo test --no-default-features
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bin-${{ matrix.npm_os }}-${{ matrix.npm_cpu }}
+          path: target/${{ matrix.target }}/release/ecw2tiff${{ matrix.npm_os == 'win32' && '.exe' || '' }}
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Check tag matches package version
+        run: |
+          version=$(node -p "require('./npm/ecw2tiff/package.json').version")
+          [ "v$version" = "$GITHUB_REF_NAME" ] || {
+            echo "tag $GITHUB_REF_NAME != package version $version"; exit 1; }
+      - name: Publish platform packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          for pair in "darwin arm64" "darwin x64" "linux x64" "linux arm64" "win32 x64"; do
+            set -- $pair
+            exe=ecw2tiff; [ "$1" = win32 ] && exe=ecw2tiff.exe
+            node npm/make-platform-package.mjs "$1" "$2" "artifacts/bin-$1-$2/$exe" dist
+            npm publish --access public "./dist/ecw2tiff-$1-$2"
+          done
+      - name: Publish launcher package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public ./npm/ecw2tiff
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir release
+          for pair in "darwin arm64" "darwin x64" "linux x64" "linux arm64"; do
+            set -- $pair
+            cp "artifacts/bin-$1-$2/ecw2tiff" "release/ecw2tiff-$1-$2"
+          done
+          cp artifacts/bin-win32-x64/ecw2tiff.exe release/ecw2tiff-win32-x64.exe
+          (cd release && shasum -a 256 * > SHA256SUMS)
+          gh release create "$GITHUB_REF_NAME" release/* \
+            --title "$GITHUB_REF_NAME" --generate-notes

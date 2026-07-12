@@ -24,7 +24,7 @@
 
 use std::fs::File;
 use std::io::{self, Read, Seek, SeekFrom};
-use std::os::unix::fs::FileExt;
+use crate::header::read_exact_at;
 
 use crate::header::{CompressFormat, EcwFile, EcwHeader, LevelInfo};
 
@@ -43,13 +43,13 @@ fn read_box(file: &mut File, at: u64, end: u64) -> io::Result<Option<BoxHdr>> {
         return Ok(None);
     }
     let mut hdr = [0u8; 8];
-    file.read_exact_at(&mut hdr, at)?;
+    read_exact_at(&file, &mut hdr, at)?;
     let mut len = u32::from_be_bytes(hdr[0..4].try_into().unwrap()) as u64;
     let typ: [u8; 4] = hdr[4..8].try_into().unwrap();
     let mut payload_start = at + 8;
     if len == 1 {
         let mut ext = [0u8; 8];
-        file.read_exact_at(&mut ext, at + 8)?;
+        read_exact_at(&file, &mut ext, at + 8)?;
         len = u64::from_be_bytes(ext);
         payload_start = at + 16;
     } else if len == 0 {
@@ -147,7 +147,7 @@ pub fn open_v3(mut file: File) -> io::Result<EcwFile> {
                 while let Some(s) = read_box(&mut file, sub_at, b.payload_end)? {
                     if &s.typ == b"ihdr" {
                         let mut buf = vec![0u8; (s.payload_end - s.payload_start) as usize];
-                        file.read_exact_at(&mut buf, s.payload_start)?;
+                        read_exact_at(&file, &mut buf, s.payload_start)?;
                         ihdr = Some(buf);
                     }
                     sub_at = s.payload_end;
@@ -155,7 +155,7 @@ pub fn open_v3(mut file: File) -> io::Result<EcwFile> {
             }
             b"gtif" => {
                 let mut buf = vec![0u8; (b.payload_end - b.payload_start) as usize];
-                file.read_exact_at(&mut buf, b.payload_start)?;
+                read_exact_at(&file, &mut buf, b.payload_start)?;
                 gtif = Some(buf);
             }
             b"ecwc" => {
@@ -231,7 +231,7 @@ pub fn open_v3(mut file: File) -> io::Result<EcwFile> {
     let rec_len = 1 + 4 + 4 + 4 * nr_bands;
     let mut rec = vec![0u8; rec_len];
     for level in 0..num_levels {
-        file.read_exact_at(&mut rec, pos)?;
+        read_exact_at(&file, &mut rec, pos)?;
         pos += rec_len as u64;
         if rec[0] as usize != level {
             return Err(bad(format!("bad level record {level}")));
@@ -264,7 +264,7 @@ pub fn open_v3(mut file: File) -> io::Result<EcwFile> {
 
     // Block table: u32be length, u8 format (RAW), then 12-byte entries.
     let mut tbl_hdr = [0u8; 5];
-    file.read_exact_at(&mut tbl_hdr, pos)?;
+    read_exact_at(&file, &mut tbl_hdr, pos)?;
     pos += 5;
     let fmt = tbl_hdr[4];
     if fmt != crate::entropy::ENCODE_RAW {
@@ -275,7 +275,7 @@ pub fn open_v3(mut file: File) -> io::Result<EcwFile> {
         return Err(bad("v3 block table extends past codestream".into()));
     }
     let mut raw = vec![0u8; need];
-    file.read_exact_at(&mut raw, pos)?;
+    read_exact_at(&file, &mut raw, pos)?;
     let mut block_table = Vec::with_capacity(total_blocks);
     for e in raw.chunks_exact(12) {
         let off = u64::from_le_bytes(e[0..8].try_into().unwrap());

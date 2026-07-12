@@ -1,0 +1,18 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test (pure Rust)
+        run: |
+          cargo build --no-default-features
+          cargo test --no-default-features
+      - name: Clippy
+        run: cargo clippy --no-default-features -- -D warnings -A dead_code -A unused_imports -A unused_mut

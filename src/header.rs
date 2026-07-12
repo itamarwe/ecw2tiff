@@ -6,8 +6,38 @@
 
 use std::fs::File;
 use std::io::{self, Read, Seek, SeekFrom};
-use std::os::unix::fs::FileExt;
 use std::path::Path;
+
+/// Positional read that never moves a shared cursor, so multiple decoder
+/// threads can read blocks from the same `File` concurrently.
+#[cfg(unix)]
+pub(crate) fn read_exact_at(file: &File, buf: &mut [u8], offset: u64) -> io::Result<()> {
+    std::os::unix::fs::FileExt::read_exact_at(file, buf, offset)
+}
+
+#[cfg(windows)]
+pub(crate) fn read_exact_at(file: &File, mut buf: &mut [u8], mut offset: u64) -> io::Result<()> {
+    // seek_read passes the offset per call (OVERLAPPED), so concurrent reads
+    // on one handle each see their own position; short reads are retried.
+    use std::os::windows::fs::FileExt;
+    while !buf.is_empty() {
+        match file.seek_read(buf, offset) {
+            Ok(0) => {
+                return Err(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    "failed to fill whole buffer",
+                ))
+            }
+            Ok(n) => {
+                buf = &mut buf[n..];
+                offset += n as u64;
+            }
+            Err(e) if e.kind() == io::ErrorKind::Interrupted => {}
+            Err(e) => return Err(e),
+        }
+    }
+    Ok(())
+}
 
 pub const MAX_SIDEBAND: usize = 4;
 
@@ -304,7 +334,7 @@ impl EcwFile {
         let n = (li.first_block_number + by as u64 * li.nr_x_blocks as u64 + bx as u64) as usize;
         let (start, len) = self.block_table[n];
         let mut buf = vec![0u8; len as usize];
-        self.file.read_exact_at(&mut buf, start)?;
+        read_exact_at(&self.file, &mut buf, start)?;
         Ok(buf)
     }
 }
