@@ -100,30 +100,22 @@ fn parse_gtif(data: &[u8]) -> GtifInfo {
                 for q in vals.chunks_exact(4).skip(1) {
                     match q[0] {
                         1024 => g.is_degrees = q[3] == 2, // GTModelType: 2 = geographic
-                        2048 | 3072 => {
-                            if q[1] == 0 && q[3] != 0 && q[3] != 32767 {
-                                g.epsg = Some(q[3]);
-                            }
+                        2048 | 3072 if q[1] == 0 && q[3] != 0 && q[3] != 32767 => {
+                            g.epsg = Some(q[3]);
                         }
                         _ => {}
                     }
                 }
             }
-            33922 => {
-                // ModelTiepoint: 6 doubles (i, j, k, x, y, z)
-                if payload.len() >= 48 {
-                    g.origin_x =
-                        f64::from_le_bytes(payload[24..32].try_into().unwrap());
-                    g.origin_y =
-                        f64::from_le_bytes(payload[32..40].try_into().unwrap());
-                }
+            // ModelTiepoint: 6 doubles (i, j, k, x, y, z)
+            33922 if payload.len() >= 48 => {
+                g.origin_x = f64::from_le_bytes(payload[24..32].try_into().unwrap());
+                g.origin_y = f64::from_le_bytes(payload[32..40].try_into().unwrap());
             }
-            33550 => {
-                // ModelPixelScale: 3 doubles
-                if payload.len() >= 16 {
-                    g.cell_inc_x = f64::from_le_bytes(payload[0..8].try_into().unwrap());
-                    g.cell_inc_y = f64::from_le_bytes(payload[8..16].try_into().unwrap());
-                }
+            // ModelPixelScale: 3 doubles
+            33550 if payload.len() >= 16 => {
+                g.cell_inc_x = f64::from_le_bytes(payload[0..8].try_into().unwrap());
+                g.cell_inc_y = f64::from_le_bytes(payload[8..16].try_into().unwrap());
             }
             _ => {}
         }
