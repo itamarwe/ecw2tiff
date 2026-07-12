@@ -119,16 +119,27 @@ implementation.
 
 ## Releasing
 
-Bump the version in `Cargo.toml` and `npm/ecw2tiff/package.json`
-(including its `optionalDependencies`), then push a matching tag:
+npm publishing uses [trusted publishing](https://docs.npmjs.com/trusted-publishers/)
+(GitHub Actions OIDC) — no npm tokens are stored anywhere. The packages
+also contain no install scripts, so they are unaffected by npm's
+install-time security defaults (lifecycle scripts disabled).
+
+Regular release: bump the version in `Cargo.toml` and
+`npm/ecw2tiff/package.json` (including its `optionalDependencies`), then
+push a matching tag:
 
 ```bash
 git tag v0.1.1 && git push --tags
 ```
 
 The release workflow builds binaries for all five targets, publishes the
-npm packages (needs the `NPM_TOKEN` repository secret) and attaches the
-binaries to a GitHub release.
+six npm packages via OIDC and attaches the binaries to a GitHub release.
+
+One-time bootstrap (trusted publishing cannot create a brand-new
+package): trigger `gh workflow run release.yml` to build the binaries,
+`npm login`, then run `npm/first-publish.sh <run-id>` to publish the
+first version from your machine, and configure the Trusted Publisher on
+each of the six packages as the script prints.
 
 ## License
 

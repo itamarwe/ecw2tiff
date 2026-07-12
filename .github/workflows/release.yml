@@ -3,16 +3,23 @@
 # binaries to a GitHub release.
 #
 # npm binaries are built with --no-default-features (pure Rust, no libjpeg-
-# turbo) so they run anywhere with zero native dependencies. Requires the
-# NPM_TOKEN repository secret (npm automation token with publish rights).
+# turbo) so they run anywhere with zero native dependencies.
+#
+# Publishing uses npm trusted publishing (OIDC) — no NPM_TOKEN secret. Each
+# of the six packages must have this repo + workflow configured as a Trusted
+# Publisher on npmjs.com (allowed action: "npm publish"). Trusted publishing
+# cannot create a brand-new package, so the very first release is published
+# locally with npm/first-publish.sh; run this workflow manually
+# (workflow_dispatch) to produce the binaries for that.
 name: release
 
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch: # build binaries only (first-release bootstrap)
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -59,8 +66,12 @@ jobs:
           if-no-files-found: error
 
   publish:
+    if: github.ref_type == 'tag'
     needs: build
     runs-on: ubuntu-24.04
+    permissions:
+      id-token: write # OIDC for npm trusted publishing
+      contents: write # create the GitHub release
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -68,16 +79,16 @@ jobs:
           path: artifacts
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           registry-url: https://registry.npmjs.org
+      - name: Update npm (trusted publishing needs >= 11.5.1)
+        run: npm install -g npm@latest && npm --version
       - name: Check tag matches package version
         run: |
           version=$(node -p "require('./npm/ecw2tiff/package.json').version")
           [ "v$version" = "$GITHUB_REF_NAME" ] || {
             echo "tag $GITHUB_REF_NAME != package version $version"; exit 1; }
       - name: Publish platform packages
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
           for pair in "darwin arm64" "darwin x64" "linux x64" "linux arm64" "win32 x64"; do
@@ -87,8 +98,6 @@ jobs:
             npm publish --access public "./dist/ecw2tiff-$1-$2"
           done
       - name: Publish launcher package
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public ./npm/ecw2tiff
       - name: Create GitHub release
         env:
