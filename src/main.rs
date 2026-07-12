@@ -92,7 +92,7 @@ fn parse_args() -> Opts {
             }
             "--tile" => {
                 o.tile = args.next().and_then(|v| v.parse().ok()).unwrap_or_else(|| usage());
-                if o.tile == 0 || o.tile % 16 != 0 || o.tile > 65520 {
+                if o.tile == 0 || !o.tile.is_multiple_of(16) || o.tile > 65520 {
                     eprintln!("error: --tile must be a multiple of 16 between 16 and 65520");
                     exit(2);
                 }

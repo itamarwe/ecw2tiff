@@ -174,7 +174,7 @@ impl<W: Write + Seek> TiffWriter<W> {
         tile: usize,
         geo: Option<GeoInfo>,
     ) -> io::Result<Self> {
-        assert!(tile % 16 == 0, "tile size must be a multiple of 16");
+        assert!(tile.is_multiple_of(16), "tile size must be a multiple of 16");
         // BigTIFF header: II, 43, bytesize-of-offsets 8, 0, offset to first IFD
         // (patched at finish time).
         w.write_all(b"II")?;

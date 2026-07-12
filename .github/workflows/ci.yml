@@ -20,4 +20,4 @@ jobs:
           cargo test --no-default-features
       - name: Clippy
         if: matrix.runner == 'ubuntu-24.04'
-        run: cargo clippy --no-default-features -- -D warnings -A dead_code -A unused_imports -A unused_mut
+        run: cargo clippy --no-default-features -- -D warnings

@@ -40,7 +40,7 @@ pub struct RangeDecoder {
 impl RangeDecoder {
     /// `data` is the full sideband payload; decoding starts at `pos`.
     pub fn start(data: &[u8], mut pos: usize) -> RangeDecoder {
-        let mut inbyte = |p: &mut usize| -> u8 {
+        let inbyte = |p: &mut usize| -> u8 {
             let b = data.get(*p).copied().unwrap_or(0);
             *p += 1;
             b
@@ -724,7 +724,7 @@ impl SbDecoder {
                 out[o..o + nzero].fill(0.0);
                 o += nzero;
             } else if v & SIGN_MASK != 0 {
-                out[o] = (v & VALUE_MASK) as f32 * bin_size * -1.0;
+                out[o] = -((v & VALUE_MASK) as f32 * bin_size);
                 o += 1;
             } else {
                 out[o] = v as f32 * bin_size;

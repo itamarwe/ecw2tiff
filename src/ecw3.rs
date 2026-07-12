@@ -23,7 +23,7 @@
 //!               to ECW v2 blocks.
 
 use std::fs::File;
-use std::io::{self, Read, Seek, SeekFrom};
+use std::io::{self, Seek, SeekFrom};
 use crate::header::read_exact_at;
 
 use crate::header::{CompressFormat, EcwFile, EcwHeader, LevelInfo};
@@ -43,13 +43,13 @@ fn read_box(file: &mut File, at: u64, end: u64) -> io::Result<Option<BoxHdr>> {
         return Ok(None);
     }
     let mut hdr = [0u8; 8];
-    read_exact_at(&file, &mut hdr, at)?;
+    read_exact_at(file, &mut hdr, at)?;
     let mut len = u32::from_be_bytes(hdr[0..4].try_into().unwrap()) as u64;
     let typ: [u8; 4] = hdr[4..8].try_into().unwrap();
     let mut payload_start = at + 8;
     if len == 1 {
         let mut ext = [0u8; 8];
-        read_exact_at(&file, &mut ext, at + 8)?;
+        read_exact_at(file, &mut ext, at + 8)?;
         len = u64::from_be_bytes(ext);
         payload_start = at + 16;
     } else if len == 0 {
@@ -199,7 +199,6 @@ pub fn open_v3(mut file: File) -> io::Result<EcwFile> {
         version: 3,
         compress_format,
         num_levels,
-        nr_sidebands,
         x_size,
         y_size,
         nr_bands,

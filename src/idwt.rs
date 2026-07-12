@@ -127,8 +127,8 @@ impl RegionLevel {
             }
             let info = &self.block_infos[k as usize];
             let mut sbs = Vec::with_capacity(total_sb);
-            for i in 0..total_sb {
-                let off = offs_len + sb_offsets[i];
+            for (i, &sb_off) in sb_offsets.iter().enumerate() {
+                let off = offs_len + sb_off;
                 sbs.push(
                     SbDecoder::start(&data, off, info.line_length, skip as usize)
                         .map_err(|e| format!("sideband start L{} ({},{}) sb{}: {e}", self.level, bx, next_y_block, i))?,
@@ -260,7 +260,7 @@ fn pull_line(
     }
 
     // Synthesize the output line from line0/line1.
-    for band in 0..cur.bands {
+    for (band, o) in out.iter_mut().enumerate() {
         let ll0 = &cur.line0[cur.chunk(band, 0)];
         let lh0 = &cur.line0[cur.chunk(band, 1)];
         let hl0 = &cur.line0[cur.chunk(band, 2)];
@@ -269,7 +269,7 @@ fn pull_line(
         let lh1 = &cur.line1[cur.chunk(band, 1)];
         let hl1 = &cur.line1[cur.chunk(band, 2)];
         let hh1 = &cur.line1[cur.chunk(band, 3)];
-        let o: &mut [f32] = out[band];
+        let o: &mut [f32] = o;
         // Even/odd x phases are computed in separate branch-free passes so the
         // loops can vectorize. Output sample i has parity
         // (output_level_start_x + i) & 1; the rolling input index b advances
@@ -632,8 +632,8 @@ impl Region {
                     }
                 } else {
                     let mut x_off = 0u64;
-                    for i in 0..nx {
-                        out[i] = clamp_u8(p[(x_off >> 32) as usize]);
+                    for o in out[..nx].iter_mut() {
+                        *o = clamp_u8(p[(x_off >> 32) as usize]);
                         x_off += inc_x;
                     }
                 }
