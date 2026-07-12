@@ -14,19 +14,40 @@ set -euo pipefail
 
 run_id=${1:?usage: npm/first-publish.sh <workflow-run-id>}
 here=$(cd "$(dirname "$0")" && pwd)
+version=$(node -p "require('$here/ecw2tiff/package.json').version")
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
+
+# Skip anything already on the registry so the script can be re-run after
+# a partial failure (npm versions are immutable; no republish possible).
+published() {
+  npm view "$1@$version" version >/dev/null 2>&1
+}
 
 echo "Downloading binaries from workflow run $run_id ..."
 gh run download "$run_id" --dir "$tmp/artifacts"
 
 for pair in "darwin arm64" "darwin x64" "linux x64" "linux arm64" "win32 x64"; do
   set -- $pair
+  name="ecw2tiff-$1-$2"
+  if published "$name"; then
+    echo "$name@$version already published, skipping"
+    continue
+  fi
   exe=ecw2tiff; [ "$1" = win32 ] && exe=ecw2tiff.exe
+  [ -f "$tmp/artifacts/bin-$1-$2/$exe" ] || {
+    echo "error: missing binary artifact bin-$1-$2/$exe in run $run_id" >&2
+    echo "(did all five build jobs succeed?)" >&2
+    exit 1
+  }
   node "$here/make-platform-package.mjs" "$1" "$2" "$tmp/artifacts/bin-$1-$2/$exe" "$tmp/dist"
-  npm publish --access public "$tmp/dist/ecw2tiff-$1-$2"
+  npm publish --access public "$tmp/dist/$name"
 done
-npm publish --access public "$here/ecw2tiff"
+if published ecw2tiff; then
+  echo "ecw2tiff@$version already published, skipping"
+else
+  npm publish --access public "$here/ecw2tiff"
+fi
 
 cat <<'EOF'
 

@@ -31,10 +31,14 @@ jobs:
             runner: macos-14
             npm_os: darwin
             npm_cpu: arm64
+          # Intel macOS runners are retired; cross-compile on the arm64
+          # runner (tests for this target run under Rosetta elsewhere: the
+          # same code is tested natively on the other four targets).
           - target: x86_64-apple-darwin
-            runner: macos-13
+            runner: macos-14
             npm_os: darwin
             npm_cpu: x64
+            cross: true
           - target: x86_64-unknown-linux-musl
             runner: ubuntu-24.04
             npm_os: linux
@@ -58,6 +62,7 @@ jobs:
           rustup target add ${{ matrix.target }}
           cargo build --release --no-default-features --target ${{ matrix.target }}
       - name: Run tests
+        if: ${{ !matrix.cross }}
         run: cargo test --no-default-features
       - uses: actions/upload-artifact@v4
         with:
