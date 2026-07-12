@@ -7,7 +7,11 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, macos-14, windows-2022]
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
       - name: Build and test (pure Rust)
@@ -15,4 +19,5 @@ jobs:
           cargo build --no-default-features
           cargo test --no-default-features
       - name: Clippy
+        if: matrix.runner == 'ubuntu-24.04'
         run: cargo clippy --no-default-features -- -D warnings -A dead_code -A unused_imports -A unused_mut
