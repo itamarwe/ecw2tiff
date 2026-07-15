@@ -183,6 +183,16 @@ package): trigger `gh workflow run release.yml` to build the binaries,
 first version from your machine, and configure the Trusted Publisher on
 each of the six packages as the script prints.
 
+The Python wheels publish to [PyPI](https://pypi.org/project/ecw2tiff/)
+the same tokenless way (`.github/workflows/pypi.yml`, OIDC trusted
+publishing) — the same `v*` tag triggers it. Wheels are built pure-Rust
+(`--no-default-features --features python`) so they install without a
+system libjpeg-turbo. PyPI supports *pending* publishers, so no bootstrap
+is needed: once, on pypi.org (Account → Publishing → add a pending
+publisher) register project `ecw2tiff`, owner `itamarwe`, repo
+`ecw2tiff`, workflow `pypi.yml`, environment `pypi`. Then `pip install
+ecw2tiff` works after the first tag.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
