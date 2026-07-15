@@ -22,9 +22,9 @@
 //!               means an empty (all-zero) block. Block payloads are identical
 //!               to ECW v2 blocks.
 
+use crate::header::read_exact_at;
 use std::fs::File;
 use std::io::{self, Seek, SeekFrom};
-use crate::header::read_exact_at;
 
 use crate::header::{CompressFormat, EcwFile, EcwHeader, LevelInfo};
 

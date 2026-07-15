@@ -1,1 +1,9 @@
 /target
+/dist
+
+# Python / maturin
+*.so
+*.pyd
+__pycache__/
+*.egg-info/
+.venv/

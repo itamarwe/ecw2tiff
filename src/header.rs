@@ -44,10 +44,10 @@ pub const MAX_SIDEBAND: usize = 4;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CompressFormat {
     None,
-    Grey,     // COMPRESS_UINT8
-    Yuv,      // COMPRESS_YUV (JPEG YCbCr)
-    Multi,    // COMPRESS_MULTI
-    Rgb,      // COMPRESS_RGB (unused in practice)
+    Grey,  // COMPRESS_UINT8
+    Yuv,   // COMPRESS_YUV (JPEG YCbCr)
+    Multi, // COMPRESS_MULTI
+    Rgb,   // COMPRESS_RGB (unused in practice)
 }
 
 impl CompressFormat {
@@ -270,9 +270,7 @@ impl EcwFile {
         let packed_length = r.u32_be()? as usize;
         let table_entries = total_blocks as usize + 1;
         let unpacked_len = table_entries * 8;
-        if packed_length == 0
-            || packed_length as u64 > file_len
-            || packed_length > unpacked_len + 1
+        if packed_length == 0 || packed_length as u64 > file_len || packed_length > unpacked_len + 1
         {
             return Err(bad("bad block table size".into()));
         }
@@ -289,7 +287,10 @@ impl EcwFile {
         // The sentinel (last) offset is the total block data length; with the
         // monotonicity check below this keeps every block inside the file.
         let last = *offsets.last().unwrap();
-        if first_block_offset.checked_add(last).is_none_or(|end| end > file_len) {
+        if first_block_offset
+            .checked_add(last)
+            .is_none_or(|end| end > file_len)
+        {
             return Err(bad("block data extends past end of file".into()));
         }
         // Convert sentinel-style offsets into absolute (offset, length) pairs.

@@ -105,9 +105,9 @@ impl RegionLevel {
         let total_sb = self.bands * n_sb;
         for k in 0..self.x_block_count {
             let bx = self.start_x_block + k;
-            let data = ecw
-                .read_block(self.level, bx, next_y_block)
-                .map_err(|e| format!("read block L{} ({},{}): {e}", self.level, bx, next_y_block))?;
+            let data = ecw.read_block(self.level, bx, next_y_block).map_err(|e| {
+                format!("read block L{} ({},{}): {e}", self.level, bx, next_y_block)
+            })?;
             if data.is_empty() {
                 // ECW v3 empty block: every sideband decodes to zeros.
                 let sbs = (0..total_sb).map(|_| SbDecoder::Zeros).collect();
@@ -117,7 +117,10 @@ impl RegionLevel {
             // Parse the sideband offset array: (total_sb - 1) u32 MSB values.
             let offs_len = 4 * (total_sb - 1);
             if data.len() < offs_len {
-                return Err(format!("block too short at L{} ({},{})", self.level, bx, next_y_block));
+                return Err(format!(
+                    "block too short at L{} ({},{})",
+                    self.level, bx, next_y_block
+                ));
             }
             let mut sb_offsets = Vec::with_capacity(total_sb);
             sb_offsets.push(0usize);
@@ -130,8 +133,12 @@ impl RegionLevel {
             for (i, &sb_off) in sb_offsets.iter().enumerate() {
                 let off = offs_len + sb_off;
                 sbs.push(
-                    SbDecoder::start(&data, off, info.line_length, skip as usize)
-                        .map_err(|e| format!("sideband start L{} ({},{}) sb{}: {e}", self.level, bx, next_y_block, i))?,
+                    SbDecoder::start(&data, off, info.line_length, skip as usize).map_err(|e| {
+                        format!(
+                            "sideband start L{} ({},{}) sb{}: {e}",
+                            self.level, bx, next_y_block, i
+                        )
+                    })?,
                 );
             }
             self.blocks.push(XBlock { data, sbs });
@@ -167,7 +174,12 @@ impl RegionLevel {
                         out,
                         bin_size,
                     )
-                    .map_err(|e| format!("decode line L{} block {k} band {band} sb {sb}: {e}", self.level))?;
+                    .map_err(|e| {
+                        format!(
+                            "decode line L{} block {k} band {band} sb {sb}: {e}",
+                            self.level
+                        )
+                    })?;
                 }
             }
         }
@@ -225,8 +237,7 @@ fn pull_line(
             // Y reflection past the last line: line1 = line0
             for c in 0..cur.bands * MAX_SIDEBAND {
                 let base = c * cur.stride;
-                cur.line1[base..base + full_w]
-                    .copy_from_slice(&cur.line0[base..base + full_w]);
+                cur.line1[base..base + full_w].copy_from_slice(&cur.line0[base..base + full_w]);
             }
         } else {
             cur.read_sideband_line(ecw)?;
@@ -279,8 +290,7 @@ fn pull_line(
         let start_odd = cur.output_level_start_x & 1 == 1;
         if y_line & 1 == 0 {
             let even = |b: usize| {
-                ll1[b + 1]
-                    - (lh0[b + 1] + lh1[b + 1] + hl1[b] + hl1[b + 1]) * 0.5
+                ll1[b + 1] - (lh0[b + 1] + lh1[b + 1] + hl1[b] + hl1[b + 1]) * 0.5
                     + (hh0[b] + hh0[b + 1] + hh1[b] + hh1[b + 1]) * 0.25
             };
             let odd = |b: usize| {
@@ -306,8 +316,7 @@ fn pull_line(
             }
         } else {
             let even = |b: usize| {
-                ((ll0[b + 1] + ll1[b + 1]) - (hh0[b] + hh0[b + 1])) * 0.5
-                    + lh0[b + 1]
+                ((ll0[b + 1] + ll1[b + 1]) - (hh0[b] + hh0[b + 1])) * 0.5 + lh0[b + 1]
                     - (hl0[b] + hl0[b + 1] + hl1[b] + hl1[b + 1]) * 0.25
             };
             let odd = |b: usize| {
@@ -459,7 +468,14 @@ impl Region {
                 (0, 1)
             };
             let (level_end_x, reflect_end_x) = if o_end_x < larger_x - 1 {
-                (if o_end_x != 0 { (o_end_x - 1) / 2 + 1 } else { 0 }, 0usize)
+                (
+                    if o_end_x != 0 {
+                        (o_end_x - 1) / 2 + 1
+                    } else {
+                        0
+                    },
+                    0usize,
+                )
             } else {
                 (li.x_size - 1, 1)
             };
@@ -469,7 +485,14 @@ impl Region {
                 (0, 1)
             };
             let (level_end_y, reflect_end_y) = if o_end_y < larger_y - 1 {
-                (if o_end_y != 0 { (o_end_y - 1) / 2 + 1 } else { 0 }, 0usize)
+                (
+                    if o_end_y != 0 {
+                        (o_end_y - 1) / 2 + 1
+                    } else {
+                        0
+                    },
+                    0usize,
+                )
             } else {
                 (li.y_size - 1, 1)
             };
@@ -483,8 +506,7 @@ impl Region {
             let last_x_block = level_end_x / h.x_block_size;
             let x_block_count = 1 + last_x_block - start_x_block;
             let first_block_skip = (level_start_x - start_x_block * h.x_block_size) as usize;
-            let last_pixel =
-                ((last_x_block + 1) * h.x_block_size - 1).min(li.x_size - 1);
+            let last_pixel = ((last_x_block + 1) * h.x_block_size - 1).min(li.x_size - 1);
             let last_block_skip = (last_pixel - level_end_x) as usize;
 
             let mut block_infos = Vec::with_capacity(x_block_count as usize);

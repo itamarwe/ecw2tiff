@@ -1,18 +1,12 @@
-mod ecw3;
-mod entropy;
-mod header;
-mod idwt;
-mod tiff;
-
-use header::EcwFile;
-use idwt::Region;
+use ecw2tiff::header::EcwFile;
+use ecw2tiff::idwt::Region;
+use ecw2tiff::tiff::{self, Codec, GeoInfo, TiffWriter};
 use std::collections::BTreeMap;
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 use std::process::exit;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{mpsc, Mutex};
-use tiff::{Codec, GeoInfo, TiffWriter};
 
 fn usage() -> ! {
     eprintln!(
@@ -76,7 +70,10 @@ fn parse_args() -> Opts {
                 };
             }
             "--scale" => {
-                o.scale = args.next().and_then(|v| v.parse().ok()).unwrap_or_else(|| usage());
+                o.scale = args
+                    .next()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or_else(|| usage());
                 if o.scale == 0 || !o.scale.is_power_of_two() {
                     eprintln!("error: --scale must be a power of two");
                     exit(2);
@@ -91,15 +88,20 @@ fn parse_args() -> Opts {
                 o.region = Some((parts[0], parts[1], parts[2], parts[3]));
             }
             "--tile" => {
-                o.tile = args.next().and_then(|v| v.parse().ok()).unwrap_or_else(|| usage());
+                o.tile = args
+                    .next()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or_else(|| usage());
                 if o.tile == 0 || !o.tile.is_multiple_of(16) || o.tile > 65520 {
                     eprintln!("error: --tile must be a multiple of 16 between 16 and 65520");
                     exit(2);
                 }
             }
             "--threads" => {
-                let n: usize =
-                    args.next().and_then(|v| v.parse().ok()).unwrap_or_else(|| usage());
+                let n: usize = args
+                    .next()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or_else(|| usage());
                 if n == 0 {
                     eprintln!("error: --threads must be at least 1");
                     exit(2);
@@ -174,9 +176,15 @@ fn main() {
         if h.projection == "GEODETIC" {
             Some(4326)
         } else if let Some(zone) = h.projection.strip_prefix("NUTM") {
-            zone.parse::<u16>().ok().filter(|z| (1..=60).contains(z)).map(|z| 32600 + z)
+            zone.parse::<u16>()
+                .ok()
+                .filter(|z| (1..=60).contains(z))
+                .map(|z| 32600 + z)
         } else if let Some(zone) = h.projection.strip_prefix("SUTM") {
-            zone.parse::<u16>().ok().filter(|z| (1..=60).contains(z)).map(|z| 32700 + z)
+            zone.parse::<u16>()
+                .ok()
+                .filter(|z| (1..=60).contains(z))
+                .map(|z| 32700 + z)
         } else {
             None
         }
@@ -284,7 +292,12 @@ fn main() {
                             }
                         }
                         let enc = tiff::encode_tile_row(
-                            &row_buf, rows, number_x as usize, ch, tile, codec,
+                            &row_buf,
+                            rows,
+                            number_x as usize,
+                            ch,
+                            tile,
+                            codec,
                         );
                         if tx.send((tr, enc)).is_err() {
                             return; // writer bailed

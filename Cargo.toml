@@ -5,17 +5,29 @@ edition = "2021"
 description = "From-scratch ECW (v2/v3) decoder and BigTIFF converter"
 license = "MIT"
 
+# cdylib for the Python extension module; rlib so the CLI binary and tests
+# link the same library.
+[lib]
+name = "ecw2tiff"
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 flate2 = "1"
 jpeg-encoder = { version = "0.6", features = ["std"] }
 rayon = "1"
 turbojpeg = { version = "1", optional = true }
+pyo3 = { version = "0.22", features = ["extension-module", "abi3-py39"], optional = true }
+webp = { version = "0.3", optional = true }
 
 [features]
 default = ["turbo"]
 # JPEG tile encoding via libjpeg-turbo (SIMD; needs the native library).
 # Build with --no-default-features for a pure-Rust binary.
 turbo = ["dep:turbojpeg"]
+# Python extension module (PyO3 + maturin). Enabled by the maturin build.
+python = ["dep:pyo3"]
+# WebP tile output for the Python binding (links libwebp).
+webp = ["dep:webp"]
 
 [profile.release]
 lto = true

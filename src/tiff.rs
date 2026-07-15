@@ -11,7 +11,7 @@ use std::io::{self, Seek, SeekFrom, Write};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Codec {
-    Jpeg(u8),    // quality 1..=100
+    Jpeg(u8),     // quality 1..=100
     Deflate(u32), // level 1..=9
     None,
 }
@@ -100,8 +100,7 @@ pub fn encode_tile_row(
                 let dst = &mut t[ty * tile * ch..(ty + 1) * tile * ch];
                 for x in 0..tile {
                     let sx = (x0 + x).min(width - 1); // pad right by replication
-                    dst[x * ch..(x + 1) * ch]
-                        .copy_from_slice(&src_row[sx * ch..(sx + 1) * ch]);
+                    dst[x * ch..(x + 1) * ch].copy_from_slice(&src_row[sx * ch..(sx + 1) * ch]);
                 }
             }
             match codec {
@@ -117,19 +116,28 @@ pub fn encode_tile_row(
         .collect()
 }
 
-/// 4:2:0 chroma subsampling for color, matching the YCbCrSubsampling tag.
+/// Baseline JPEG from interleaved 8-bit pixels of arbitrary `width` x
+/// `height`. Color (`ch == 3`) uses YCbCr 4:2:0 chroma subsampling;
+/// `ch == 1` produces a grayscale JPEG. Never progressive, so the output is
+/// browser-friendly and TIFF-embeddable.
 #[cfg(feature = "turbo")]
-fn encode_jpeg(t: &[u8], tile: usize, ch: usize, quality: u8) -> Vec<u8> {
+pub fn encode_jpeg_rgb(
+    pixels: &[u8],
+    width: usize,
+    height: usize,
+    ch: usize,
+    quality: u8,
+) -> Vec<u8> {
     use std::cell::RefCell;
     thread_local! {
         static COMPRESSOR: RefCell<turbojpeg::Compressor> =
             RefCell::new(turbojpeg::Compressor::new().expect("jpeg compressor"));
     }
     let image = turbojpeg::Image {
-        pixels: t,
-        width: tile,
-        pitch: tile * ch,
-        height: tile,
+        pixels,
+        width,
+        pitch: width * ch,
+        height,
         format: if ch == 1 {
             turbojpeg::PixelFormat::GRAY
         } else {
@@ -150,7 +158,13 @@ fn encode_jpeg(t: &[u8], tile: usize, ch: usize, quality: u8) -> Vec<u8> {
 }
 
 #[cfg(not(feature = "turbo"))]
-fn encode_jpeg(t: &[u8], tile: usize, ch: usize, quality: u8) -> Vec<u8> {
+pub fn encode_jpeg_rgb(
+    pixels: &[u8],
+    width: usize,
+    height: usize,
+    ch: usize,
+    quality: u8,
+) -> Vec<u8> {
     let mut out = Vec::new();
     let mut enc = JpegEncoder::new(&mut out, quality);
     enc.set_sampling_factor(jpeg_encoder::SamplingFactor::F_2_2);
@@ -159,9 +173,42 @@ fn encode_jpeg(t: &[u8], tile: usize, ch: usize, quality: u8) -> Vec<u8> {
     } else {
         ColorType::Rgb
     };
-    enc.encode(t, tile as u16, tile as u16, color)
+    enc.encode(pixels, width as u16, height as u16, color)
         .expect("jpeg encode");
     out
+}
+
+/// Square-tile helper for the BigTIFF writer.
+fn encode_jpeg(t: &[u8], tile: usize, ch: usize, quality: u8) -> Vec<u8> {
+    encode_jpeg_rgb(t, tile, tile, ch, quality)
+}
+
+/// Lossy WebP from interleaved RGB (`ch == 3`) pixels. Requires the `webp`
+/// cargo feature; otherwise returns an error naming the missing feature.
+#[cfg(feature = "webp")]
+pub fn encode_webp(
+    pixels: &[u8],
+    width: usize,
+    height: usize,
+    ch: usize,
+    quality: u8,
+) -> Result<Vec<u8>, String> {
+    if ch != 3 {
+        return Err(format!("webp output requires 3-channel RGB, got {ch}"));
+    }
+    let encoder = webp::Encoder::from_rgb(pixels, width as u32, height as u32);
+    Ok(encoder.encode(quality as f32).to_vec())
+}
+
+#[cfg(not(feature = "webp"))]
+pub fn encode_webp(
+    _pixels: &[u8],
+    _width: usize,
+    _height: usize,
+    _ch: usize,
+    _quality: u8,
+) -> Result<Vec<u8>, String> {
+    Err("webp output was not compiled in (rebuild with the \"webp\" feature)".into())
 }
 
 impl<W: Write + Seek> TiffWriter<W> {
@@ -174,7 +221,10 @@ impl<W: Write + Seek> TiffWriter<W> {
         tile: usize,
         geo: Option<GeoInfo>,
     ) -> io::Result<Self> {
-        assert!(tile.is_multiple_of(16), "tile size must be a multiple of 16");
+        assert!(
+            tile.is_multiple_of(16),
+            "tile size must be a multiple of 16"
+        );
         // BigTIFF header: II, 43, bytesize-of-offsets 8, 0, offset to first IFD
         // (patched at finish time).
         w.write_all(b"II")?;
@@ -229,10 +279,7 @@ impl<W: Write + Seek> TiffWriter<W> {
 
         entries.push(push_long(TAG_IMAGE_WIDTH, self.width));
         entries.push(push_long(TAG_IMAGE_LENGTH, self.height));
-        entries.push(push_shorts(
-            TAG_BITS_PER_SAMPLE,
-            &vec![8u16; self.channels],
-        ));
+        entries.push(push_shorts(TAG_BITS_PER_SAMPLE, &vec![8u16; self.channels]));
         let compression: u16 = match self.codec {
             Codec::Jpeg(_) => 7,
             Codec::Deflate(_) => 8,
@@ -325,9 +372,18 @@ impl<W: Write + Seek> TiffWriter<W> {
             let ascii = format!("{}\0", geo.citation);
             let model_type: u16 = if geo.is_degrees { 2 } else { 1 };
             let mut keys: Vec<u16> = vec![
-                1024, 0, 1, model_type, // GTModelTypeGeoKey
-                1025, 0, 1, 1, // GTRasterTypeGeoKey = PixelIsArea
-                1026, 34737, ascii.len() as u16, 0, // GTCitationGeoKey
+                1024,
+                0,
+                1,
+                model_type, // GTModelTypeGeoKey
+                1025,
+                0,
+                1,
+                1, // GTRasterTypeGeoKey = PixelIsArea
+                1026,
+                34737,
+                ascii.len() as u16,
+                0, // GTCitationGeoKey
             ];
             if let Some(epsg) = geo.epsg {
                 if geo.is_degrees {
@@ -372,8 +428,7 @@ impl<W: Write + Seek> TiffWriter<W> {
 
         // IFD
         let ifd_pos = self.w.stream_position()?;
-        self.w
-            .write_all(&(entries.len() as u64).to_le_bytes())?;
+        self.w.write_all(&(entries.len() as u64).to_le_bytes())?;
         for (e, voff) in entries.iter().zip(&value_offsets) {
             self.w.write_all(&e.tag.to_le_bytes())?;
             self.w.write_all(&e.typ.to_le_bytes())?;

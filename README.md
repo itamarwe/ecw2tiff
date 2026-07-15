@@ -78,6 +78,48 @@ Peak memory is about `image_width * tile * 3 * threads` bytes (~4 GB for
 a 276k-pixel-wide mosaic on 8 cores); reduce `--threads` or `--tile` on
 memory-constrained machines.
 
+## Python binding
+
+For servers that decode many tiles from the same file (e.g. a map tile
+server), the crate also builds an in-process Python extension via
+[PyO3](https://pyo3.rs) + [maturin](https://www.maturin.rs). A resident
+`EcwReader` opens the file and its pyramid **once** and decodes tiles
+directly — no per-tile process spawn, no intermediate file, and the tile
+is JPEG-encoded a single time from the decoded pixels.
+
+```bash
+pip install maturin
+maturin develop --release        # build + install into the active venv
+# (needs libjpeg-turbo present; add --no-default-features for pure Rust,
+#  or --features python,webp to enable WebP tile output)
+```
+
+```python
+from ecw2tiff import EcwReader
+
+r = EcwReader("arzi_3_26.ecw")          # opens header + pyramid once; reuse it
+r.info                                   # {'width':…, 'height':…, 'bands':…, 'levels':…,
+                                         #  'cell_size':(…), 'origin':(…), 'projection':…, 'epsg':…}
+
+# Decode a full-resolution pixel rectangle at 1/scale (scale a power of two;
+# the decoder walks the ECW pyramid so coarse tiles stay cheap).
+jpeg = r.tile(x, y, 512, 512, scale=1, encode="jpeg", quality=85)   # -> bytes
+webp = r.tile(x, y, 512, 512, encode="webp", quality=80)            # -> bytes (needs webp feature)
+pixels, w, h, ch = r.tile(x, y, 512, 512, encode="raw")            # interleaved RGB bytes + dims
+```
+
+`encode` defaults to `"raw"` (interleaved 8-bit samples, returned with
+`width, height, channels`); `"jpeg"` returns **baseline** JPEG with YCbCr
+4:2:0 subsampling (3-band RGB; a 4th/alpha band is dropped); `"webp"`
+returns lossy WebP. `quality` (1–100) applies to jpeg/webp.
+
+**Threading:** reads are thread-safe — the file is read with positional
+I/O and each `tile()` builds its own decode state — so a multi-threaded
+server can share one `EcwReader` across threads, and the GIL is released
+for the whole decode+encode. On an M1 (4P+4E) tile decoding scales ~4.7×
+across 8 threads, and an in-process tile is ~100× faster than spawning
+the CLI and re-encoding with GDAL per tile.
+
 ## How it works
 
 ECW is a wavelet codec: a multi-resolution QMF pyramid where each level

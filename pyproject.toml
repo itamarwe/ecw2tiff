@@ -1,0 +1,28 @@
+[build-system]
+requires = ["maturin>=1.5,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "ecw2tiff"
+description = "In-process ECW (v2/v3) tile decoder — Python binding for the ecw2tiff Rust crate"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Itamar Weiss", email = "weiss.itamar@gmail.com" }]
+readme = "README.md"
+classifiers = [
+  "Programming Language :: Rust",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Scientific/Engineering :: GIS",
+]
+dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/itamarwe/ecw2tiff"
+
+[tool.maturin]
+bindings = "pyo3"
+# Enables the `python` cargo feature; `turbo` stays on (default) for
+# libjpeg-turbo JPEG encoding. Pass --no-default-features for a pure-Rust
+# build, or -F webp to add WebP tile output.
+features = ["python"]

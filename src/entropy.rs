@@ -123,6 +123,12 @@ pub struct QsModel {
     search: [u16; (1 << TBLSHIFT) + 1],
 }
 
+impl Default for QsModel {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl QsModel {
     pub fn new() -> QsModel {
         let mut m = QsModel {
@@ -142,7 +148,11 @@ impl QsModel {
         let initval = (m.cf[QSM_N] as i32 / QSM_N as i32) as u16;
         let end = m.cf[QSM_N] as i32 % QSM_N as i32;
         for i in 0..QSM_N {
-            m.newf[i] = if (i as i32) < end { initval + 1 } else { initval };
+            m.newf[i] = if (i as i32) < end {
+                initval + 1
+            } else {
+                initval
+            };
         }
         m.dorescale();
         m
@@ -269,8 +279,7 @@ impl HuffTree {
         if data.len() < *pos + 2 {
             return Err("huffman tree truncated".into());
         }
-        let n_nodes =
-            (u16::from_le_bytes([data[*pos], data[*pos + 1]]) as u32).wrapping_add(1);
+        let n_nodes = (u16::from_le_bytes([data[*pos], data[*pos + 1]]) as u32).wrapping_add(1);
         *pos += 2;
         let mut t = HuffTree {
             nodes: Vec::with_capacity(n_nodes as usize),
@@ -796,9 +805,18 @@ mod tests {
         // LSB-first bit sequence 0,1,0,1,1 = 0x1A
         data.push(0x1A);
         let mut bitpos = pos * 8;
-        assert!(matches!(tree.decode(&data, &mut bitpos), HuffSymbol::Value(5)));
-        assert!(matches!(tree.decode(&data, &mut bitpos), HuffSymbol::Value(1)));
-        assert!(matches!(tree.decode(&data, &mut bitpos), HuffSymbol::ZeroRun(2)));
+        assert!(matches!(
+            tree.decode(&data, &mut bitpos),
+            HuffSymbol::Value(5)
+        ));
+        assert!(matches!(
+            tree.decode(&data, &mut bitpos),
+            HuffSymbol::Value(1)
+        ));
+        assert!(matches!(
+            tree.decode(&data, &mut bitpos),
+            HuffSymbol::ZeroRun(2)
+        ));
     }
 
     #[test]

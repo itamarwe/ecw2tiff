@@ -21,3 +21,8 @@ jobs:
       - name: Clippy
         if: matrix.runner == 'ubuntu-24.04'
         run: cargo clippy --no-default-features -- -D warnings
+      - name: Check Python binding (compiles, lints)
+        if: matrix.runner == 'ubuntu-24.04'
+        run: |
+          cargo check --no-default-features --features python,webp
+          cargo clippy --no-default-features --features python,webp -- -D warnings
