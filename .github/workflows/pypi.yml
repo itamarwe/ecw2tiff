@@ -1,0 +1,94 @@
+# On a v* tag: build Python wheels for each platform + an sdist and publish
+# them to PyPI via trusted publishing (OIDC) — no API token or secret.
+#
+# Wheels are pure-Rust (--no-default-features --features python): JPEG uses
+# the bundled jpeg-encoder rather than system libjpeg-turbo, so the wheels
+# are self-contained and install anywhere. abi3 (py39) means one wheel per
+# platform serves every Python >= 3.9.
+#
+# One-time setup on pypi.org (Account -> Publishing -> add a pending
+# publisher): project "ecw2tiff", owner "itamarwe", repo "ecw2tiff",
+# workflow "pypi.yml", environment "pypi".
+name: pypi
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch: # build wheels without publishing (dry run)
+
+permissions:
+  contents: read
+
+jobs:
+  wheels:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14
+            target: aarch64-apple-darwin
+          # Intel macOS runners are retired; cross-compile on the arm64 runner.
+          - runner: macos-14
+            target: x86_64-apple-darwin
+          - runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+          - runner: windows-2022
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wheel
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
+          # manylinux container for portable Linux wheels; ignored elsewhere.
+          manylinux: auto
+          args: >-
+            --release
+            --out dist
+            --no-default-features
+            --features python
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.target }}
+          path: dist/*.whl
+          if-no-files-found: error
+
+  sdist:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build sdist
+        uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  publish:
+    if: github.ref_type == 'tag'
+    needs: [wheels, sdist]
+    runs-on: ubuntu-24.04
+    environment: pypi
+    permissions:
+      id-token: write # OIDC for PyPI trusted publishing
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check tag matches package version
+        run: |
+          version=$(grep -m1 '^version' Cargo.toml | sed -E 's/.*"([^"]+)".*/\1/')
+          [ "v$version" = "$GITHUB_REF_NAME" ] || {
+            echo "tag $GITHUB_REF_NAME != Cargo.toml version $version"; exit 1; }
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
