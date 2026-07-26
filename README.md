@@ -25,25 +25,35 @@ binaries are also attached to each [GitHub release](https://github.com/itamarwe/
 cargo build --release
 ```
 
-By default JPEG tiles are encoded with libjpeg-turbo (SIMD), which must be
-present on the system, **and** pkg-config, which is how the build finds it:
+By default JPEG tiles are encoded with libjpeg-turbo (SIMD). `turbojpeg-sys`
+builds its own copy rather than looking for a system one, so what a default
+build needs is **cmake**:
 
 ```bash
-brew install jpeg-turbo pkg-config          # macOS
-apt install libturbojpeg0-dev pkg-config    # Debian/Ubuntu
+brew install cmake            # macOS
+apt install cmake             # Debian/Ubuntu
 ```
 
-Without pkg-config the build does not stop at a clear message. It falls back
-to compiling a vendored copy of libjpeg-turbo, which needs cmake, and fails
-with:
+Without it the build fails with:
 
 ```text
 failed to execute command: No such file or directory (os error 2)
 is `cmake` not installed?
 ```
 
-That names the wrong dependency — installing pkg-config is the fix, and lets
-the build link the libjpeg-turbo you already have.
+To link a system libjpeg-turbo instead of vendoring one, say so explicitly —
+installing the library and pkg-config alone changes nothing, because with
+`TURBOJPEG_SOURCE` unset the build never consults pkg-config:
+
+```bash
+brew install jpeg-turbo pkg-config
+TURBOJPEG_SOURCE=pkg-config \
+  PKG_CONFIG_PATH=/opt/homebrew/opt/jpeg-turbo/lib/pkgconfig \
+  cargo build --release
+```
+
+Both routes measure the same — 9.45 ms/tile linked against 9.59 vendored, on a
+327680x296960 ECW — so vendoring is only about which prerequisite you prefer.
 
 For a pure-Rust binary with no native dependencies and nothing to install,
 build with:
@@ -108,14 +118,14 @@ is JPEG-encoded a single time from the decoded pixels.
 There are two ways in, and they differ in JPEG encoder:
 
 ```bash
-pip install ecw2tiff                           # released wheel: pure Rust, nothing to build
-pip install 'git+https://github.com/itamarwe/ecw2tiff'   # source: libjpeg-turbo SIMD
+pip install ecw2tiff                     # wheel: pure Rust, nothing to build
+pip install --no-binary ecw2tiff ecw2tiff # sdist: libjpeg-turbo SIMD
 ```
 
-The wheel is self-contained and needs no system libjpeg-turbo. A source build
-links it, which encodes JPEG tiles measurably faster — worth it for a resident
-tile server — and needs the Rust toolchain plus the two prerequisites in
-[Build](#build), libjpeg-turbo **and pkg-config**.
+The wheels are self-contained and need no system libjpeg-turbo. Forcing the sdist
+build links it instead, which encodes JPEG tiles measurably faster — worth it for
+a resident tile server — and needs the Rust toolchain plus cmake, as in
+[Build](#build).
 
 Note that a cargo feature cannot be selected through `pip install`: maturin
 forwards `--config-settings=build-args` and `MATURIN_PEP517_ARGS` to
