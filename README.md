@@ -105,27 +105,31 @@ server), the crate also builds an in-process Python extension via
 directly — no per-tile process spawn, no intermediate file, and the tile
 is JPEG-encoded a single time from the decoded pixels.
 
-Released versions install as a self-contained wheel — pure-Rust, so there is
-nothing to build and no system libjpeg-turbo to install:
+There are two ways in, and they differ in JPEG encoder:
 
 ```bash
-pip install ecw2tiff
+pip install ecw2tiff                           # released wheel: pure Rust, nothing to build
+pip install 'git+https://github.com/itamarwe/ecw2tiff'   # source: libjpeg-turbo SIMD
 ```
 
-Installing from a checkout or straight from git builds the crate. That is also
-pure-Rust by default, so it needs only a Rust toolchain:
+The wheel is self-contained and needs no system libjpeg-turbo. A source build
+links it, which encodes JPEG tiles measurably faster — worth it for a resident
+tile server — and needs the Rust toolchain plus the two prerequisites in
+[Build](#build), libjpeg-turbo **and pkg-config**.
 
-```bash
-pip install .                                  # or: pip install 'git+https://github.com/itamarwe/ecw2tiff'
-```
+Note that a cargo feature cannot be selected through `pip install`: maturin
+forwards `--config-settings=build-args` and `MATURIN_PEP517_ARGS` to
+`pep517 write-dist-info`, which rejects `--features` and fails the build. So the
+choice of encoder is the choice between the wheel and a source install, and
+`[tool.maturin] features` in `pyproject.toml` is what decides what a source
+install gets.
 
-To develop against it, or to opt back into libjpeg-turbo's SIMD JPEG encoding
-(~20% faster, and then subject to the build prerequisites above):
+To develop against it:
 
 ```bash
 pip install maturin
-maturin develop --release                      # pure Rust, matching the wheels
-maturin develop --release -F turbo             # link system libjpeg-turbo
+maturin develop --release                      # libjpeg-turbo (default)
+maturin develop --release --no-default-features # pure Rust, matching the wheels
 maturin develop --release -F webp              # add WebP tile output
 ```
 
