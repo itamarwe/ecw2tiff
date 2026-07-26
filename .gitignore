@@ -7,3 +7,6 @@
 __pycache__/
 *.egg-info/
 .venv/
+
+# assembled npm binaries (built by CI, not source)
+npm/ecw2tiff/bin/ecw2tiff-*

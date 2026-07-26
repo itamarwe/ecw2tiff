@@ -15,9 +15,12 @@ npx ecw2tiff --info input.ecw    # run without installing
 npm install -g ecw2tiff          # or install globally
 ```
 
-The npm binaries are dependency-free pure-Rust builds (JPEG encoding is
-~20% slower than a source build with libjpeg-turbo — see below). Static
-binaries are also attached to each [GitHub release](https://github.com/itamarwe/ecw2tiff/releases).
+The npm package has no dependencies and no install scripts: every
+platform binary ships inside it (1.7 MB for all five), and the `bin` shim
+picks the right one at run time. The binaries are dependency-free
+pure-Rust builds (JPEG encoding is ~20% slower than a source build with
+libjpeg-turbo — see below). Static binaries are also attached to each
+[GitHub release](https://github.com/itamarwe/ecw2tiff/releases).
 
 ## Build
 
@@ -167,21 +170,21 @@ also contain no install scripts, so they are unaffected by npm's
 install-time security defaults (lifecycle scripts disabled).
 
 Regular release: bump the version in `Cargo.toml` and
-`npm/ecw2tiff/package.json` (including its `optionalDependencies`), then
-push a matching tag:
+`npm/ecw2tiff/package.json`, then push a matching tag:
 
 ```bash
 git tag v0.1.1 && git push --tags
 ```
 
-The release workflow builds binaries for all five targets, publishes the
-six npm packages via OIDC and attaches the binaries to a GitHub release.
+The release workflow builds binaries for all five targets, bundles them
+into the single `ecw2tiff` npm package, publishes it via OIDC and
+attaches the binaries to a GitHub release.
 
 One-time bootstrap (trusted publishing cannot create a brand-new
 package): trigger `gh workflow run release.yml` to build the binaries,
 `npm login`, then run `npm/first-publish.sh <run-id>` to publish the
-first version from your machine, and configure the Trusted Publisher on
-each of the six packages as the script prints.
+first version from your machine, and configure the Trusted Publisher as
+the script prints.
 
 The Python wheels publish to [PyPI](https://pypi.org/project/ecw2tiff/)
 the same tokenless way (`.github/workflows/pypi.yml`, OIDC trusted

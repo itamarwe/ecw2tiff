@@ -1,20 +1,22 @@
 #!/usr/bin/env node
-// Launcher: runs the prebuilt ecw2tiff binary for this platform, installed
-// via the matching optional dependency (esbuild-style distribution).
+// Launcher: runs the prebuilt ecw2tiff binary for this platform. All
+// supported binaries ship inside this package (they total under 2 MB), so
+// there are no optional dependencies to resolve and no install scripts.
 "use strict";
 const { spawnSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
-const PLATFORMS = {
-  "darwin arm64": "ecw2tiff-darwin-arm64",
-  "darwin x64": "ecw2tiff-darwin-x64",
-  "linux x64": "ecw2tiff-linux-x64",
-  "linux arm64": "ecw2tiff-linux-arm64",
-  "win32 x64": "ecw2tiff-win32-x64",
-};
+const SUPPORTED = new Set([
+  "darwin-arm64",
+  "darwin-x64",
+  "linux-arm64",
+  "linux-x64",
+  "win32-x64",
+]);
 
-const key = `${process.platform} ${process.arch}`;
-const pkg = PLATFORMS[key];
-if (!pkg) {
+const key = `${process.platform}-${process.arch}`;
+if (!SUPPORTED.has(key)) {
   console.error(
     `ecw2tiff: no prebuilt binary for ${key}.\n` +
       "Build from source instead: cargo install --git https://github.com/itamarwe/ecw2tiff"
@@ -22,20 +24,30 @@ if (!pkg) {
   process.exit(1);
 }
 
-const exe = process.platform === "win32" ? "ecw2tiff.exe" : "ecw2tiff";
-let bin;
-try {
-  bin = require.resolve(`${pkg}/bin/${exe}`);
-} catch {
-  console.error(
-    `ecw2tiff: platform package ${pkg} is missing.\n` +
-      "It is installed as an optionalDependency; reinstall without " +
-      "--no-optional / --omit=optional."
-  );
+const bin = path.join(
+  __dirname,
+  `ecw2tiff-${key}${process.platform === "win32" ? ".exe" : ""}`
+);
+if (!fs.existsSync(bin)) {
+  console.error(`ecw2tiff: bundled binary is missing (${bin}). Try reinstalling.`);
   process.exit(1);
 }
 
-const r = spawnSync(bin, process.argv.slice(2), { stdio: "inherit" });
+function run() {
+  return spawnSync(bin, process.argv.slice(2), { stdio: "inherit" });
+}
+
+let r = run();
+// npm normally preserves the executable bit from the published tarball; if
+// something stripped it, fix it once and retry rather than failing.
+if (r.error && r.error.code === "EACCES" && process.platform !== "win32") {
+  try {
+    fs.chmodSync(bin, 0o755);
+    r = run();
+  } catch {
+    /* fall through to the error report below */
+  }
+}
 if (r.error) {
   console.error(`ecw2tiff: failed to run ${bin}: ${r.error.message}`);
   process.exit(1);

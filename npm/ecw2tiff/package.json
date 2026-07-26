@@ -12,12 +12,5 @@
   "files": ["bin"],
   "engines": {
     "node": ">=16"
-  },
-  "optionalDependencies": {
-    "ecw2tiff-darwin-arm64": "0.1.0",
-    "ecw2tiff-darwin-x64": "0.1.0",
-    "ecw2tiff-linux-x64": "0.1.0",
-    "ecw2tiff-linux-arm64": "0.1.0",
-    "ecw2tiff-win32-x64": "0.1.0"
   }
 }
