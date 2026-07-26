@@ -7,6 +7,7 @@
 
 pub mod ecw3;
 pub mod entropy;
+pub mod fdwt;
 pub mod header;
 pub mod idwt;
 pub mod tiff;
