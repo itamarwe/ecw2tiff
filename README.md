@@ -145,11 +145,12 @@ For lossy output, ask for a compression ratio:
 img2ecw --ratio 20 input.ppm output.ecw
 ```
 
-Each sideband is encoded four ways (raw int16, all-zeros, zero-run RLE and
-Huffman) and the smallest is kept, and `--ratio` searches for the
-quantization strength that lands nearest the requested ratio — quantizing
-per-level with the same curve real ECW files use (luma bins halving per
-level, chroma about 3x luma). On a 512x512 aerial crop:
+Each sideband is encoded every way the decoder can read — raw int16,
+all-zeros, zero-run RLE, Huffman, and both range-coder forms — and the
+smallest is kept, so a format can only ever shrink output. `--ratio`
+searches for the quantization strength that lands nearest the requested
+ratio, quantizing per level with the same curve real ECW files use (luma
+bins halving per level, chroma about 3x luma). On a 512x512 aerial crop:
 
 | mode | size | ratio | mean error |
 |------|------|-------|------------|
@@ -158,9 +159,18 @@ level, chroma about 3x luma). On a 512x512 aerial crop:
 | `--ratio 20` | 39 KB | 20.1x | 8.3 |
 | `--ratio 100` | 8 KB | 101x | 11.5 |
 
-Remaining gaps: the range-coder sideband formats (3/4) are not written
-yet, so at a given size the quality is below what a real ECW encoder
-achieves; the whole image is held in memory, so this suits modest rasters
+Which format wins is content-dependent, and worth knowing if you extend
+this: Huffman dominates quantized detail bands, because it codes a run of
+zeros as a *single* symbol from the run/value alphabet, while the range
+formats spend one or two adaptively-coded byte-symbols per coefficient. The
+range coder earns its place on the smooth, large-magnitude `LL` band and on
+streams with coefficients beyond +/-16383, which no other format can
+compress. Adding it bought about 1% overall — see
+`examples/format_choice.rs` for the per-format comparison.
+
+Remaining gaps: rate-distortion is still below a mature ECW encoder at a
+given ratio (the gap is in rate allocation across levels, not entropy
+coding); the whole image is held in memory, so this suits modest rasters
 rather than the gigapixel mosaics the decoder streams; and dimensions must
 be divisible by `2^levels`.
 

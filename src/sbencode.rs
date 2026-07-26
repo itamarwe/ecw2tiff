@@ -21,8 +21,8 @@
 use std::collections::BinaryHeap;
 
 use crate::entropy::{
-    ENCODE_HUFFMAN, ENCODE_RAW, ENCODE_RUN_ZERO, ENCODE_ZEROS, MAX_RUN_LENGTH, RUN_MASK, SIGN_MASK,
-    VALUE_MASK,
+    range_encode_symbol, QsModel, RangeEncoder, ENCODE_HUFFMAN, ENCODE_RANGE, ENCODE_RANGE8,
+    ENCODE_RAW, ENCODE_RUN_ZERO, ENCODE_ZEROS, MAX_RUN_LENGTH, RUN_MASK, SIGN_MASK, VALUE_MASK,
 };
 
 /// Largest zero run a single symbol can express.
@@ -278,6 +278,90 @@ fn encode_huffman(syms: &[Sym]) -> Option<Vec<u8>> {
 }
 
 // ---------------------------------------------------------------------------
+// Range coder
+// ---------------------------------------------------------------------------
+
+/// `ENCODE_RANGE`: two adaptively coded byte-symbols per coefficient, low
+/// byte first — the order `SbDecoder::Range` reads them in.
+///
+/// Unlike the run/value formats this codes the full 16-bit range, so it is
+/// the only compressing option for streams containing coefficients beyond
+/// +/-16383.
+fn encode_range(values: &[i16]) -> Vec<u8> {
+    let mut enc = RangeEncoder::new();
+    let mut qsm = QsModel::new();
+    for &v in values {
+        let u = v as u16;
+        range_encode_symbol(&mut enc, &mut qsm, (u & 0xff) as usize);
+        range_encode_symbol(&mut enc, &mut qsm, (u >> 8) as usize);
+    }
+    let mut out = vec![ENCODE_RANGE];
+    out.extend_from_slice(&enc.finish());
+    out
+}
+
+/// `ENCODE_RANGE8`: one adaptively coded byte per coefficient, as a delta
+/// from the previous one, after a two-symbol prefix carrying the starting
+/// value **high byte first** (the opposite order to the per-coefficient
+/// bytes in `ENCODE_RANGE` — `SbDecoder::Range8` reads hi then lo).
+///
+/// Returns `None` unless every delta fits in a signed byte, which is what
+/// makes this so effective on smooth, LL-like data. Deltas wrap exactly as
+/// the decoder's `wrapping_add` does, so a step across the int16 boundary is
+/// still representable.
+fn encode_range8(values: &[i16]) -> Option<Vec<u8>> {
+    if values.is_empty() {
+        return None;
+    }
+    // Seed with the first value so its own delta is zero.
+    let init = values[0];
+    let mut deltas = Vec::with_capacity(values.len());
+    let mut prev = init;
+    for &v in values {
+        let d = v.wrapping_sub(prev);
+        if !(-128..=127).contains(&d) {
+            return None;
+        }
+        deltas.push(d as i8);
+        prev = v;
+    }
+
+    let mut enc = RangeEncoder::new();
+    let mut qsm = QsModel::new();
+    let u = init as u16;
+    range_encode_symbol(&mut enc, &mut qsm, (u >> 8) as usize); // hi
+    range_encode_symbol(&mut enc, &mut qsm, (u & 0xff) as usize); // lo
+    for &d in &deltas {
+        range_encode_symbol(&mut enc, &mut qsm, d as u8 as usize);
+    }
+    let mut out = vec![ENCODE_RANGE8];
+    out.extend_from_slice(&enc.finish());
+    Some(out)
+}
+
+// ---------------------------------------------------------------------------
+
+/// Sizes every candidate encoding would produce, as `(format, bytes)`.
+/// Diagnostic counterpart to [`encode_sideband`], which just keeps the best.
+pub fn candidate_sizes(values: &[i16]) -> Vec<(u8, usize)> {
+    let mut v = vec![(ENCODE_RAW, encode_raw(values).len())];
+    if let Some(z) = encode_zeros(values) {
+        v.push((ENCODE_ZEROS, z.len()));
+    }
+    if let Some(syms) = tokenize(values) {
+        v.push((ENCODE_RUN_ZERO, encode_run_zero(&syms).len()));
+        if let Some(h) = encode_huffman(&syms) {
+            v.push((ENCODE_HUFFMAN, h.len()));
+        }
+    }
+    if !values.is_empty() {
+        v.push((ENCODE_RANGE, encode_range(values).len()));
+        if let Some(r8) = encode_range8(values) {
+            v.push((ENCODE_RANGE8, r8.len()));
+        }
+    }
+    v
+}
 
 /// Encode one sideband stream, choosing the smallest available encoding.
 ///
@@ -296,6 +380,10 @@ pub fn encode_sideband(values: &[i16]) -> Vec<u8> {
     if let Some(syms) = tokenize(values) {
         consider(Some(encode_run_zero(&syms)));
         consider(encode_huffman(&syms));
+    }
+    if !values.is_empty() {
+        consider(Some(encode_range(values)));
+        consider(encode_range8(values));
     }
     best
 }
@@ -356,12 +444,20 @@ mod tests {
     }
 
     #[test]
-    fn out_of_range_values_fall_back_to_raw() {
-        // Beyond the run/value alphabet (+/-16383): RAW is the only option.
+    fn out_of_range_values_still_compress() {
+        // Beyond the run/value alphabet (+/-16383) the run/Huffman formats
+        // decline, but the range coder handles the full 16-bit range.
         let mut v = vec![0i16; 64];
         v[5] = 20000;
         v[9] = -30000;
-        assert_round_trips(&v, 8, 8, Some(ENCODE_RAW));
+        let data = encode_sideband(&v);
+        assert!(
+            data[0] == ENCODE_RANGE || data[0] == ENCODE_RANGE8,
+            "expected a range format, got {}",
+            data[0]
+        );
+        assert!(data.len() < encode_raw(&v).len());
+        assert_round_trips(&v, 8, 8, None);
     }
 
     #[test]
@@ -383,8 +479,9 @@ mod tests {
     }
 
     #[test]
-    fn huffman_wins_on_skewed_data() {
-        // Heavily skewed value distribution: Huffman should beat RLE and RAW.
+    fn skewed_data_compresses_well() {
+        // Heavily skewed value distribution: an entropy coder (Huffman or
+        // range) should beat both RLE and RAW by a wide margin.
         let v: Vec<i16> = (0..4096)
             .map(|i| match i % 16 {
                 0..=11 => 1,
@@ -394,9 +491,72 @@ mod tests {
             })
             .collect();
         let data = encode_sideband(&v);
-        assert_eq!(data[0], ENCODE_HUFFMAN, "expected Huffman to win");
+        assert!(
+            data[0] == ENCODE_HUFFMAN || data[0] == ENCODE_RANGE || data[0] == ENCODE_RANGE8,
+            "expected an entropy coder to win, got {}",
+            data[0]
+        );
         assert!(data.len() < 4096, "should beat one byte per sample");
-        assert_round_trips(&v, 64, 64, Some(ENCODE_HUFFMAN));
+        assert_round_trips(&v, 64, 64, None);
+    }
+
+    #[test]
+    fn smooth_data_uses_range8() {
+        // Gentle ramps have small deltas, which is exactly RANGE8's case.
+        let v: Vec<i16> = (0..1024).map(|i| 1000 + (i as i16) / 4).collect();
+        let data = encode_sideband(&v);
+        assert_eq!(data[0], ENCODE_RANGE8, "expected RANGE8 on smooth data");
+        assert_round_trips(&v, 32, 32, Some(ENCODE_RANGE8));
+    }
+
+    #[test]
+    fn range8_declines_on_large_jumps() {
+        // Deltas beyond a signed byte: RANGE8 must decline rather than
+        // produce something the decoder would misread.
+        let v: Vec<i16> = (0..256)
+            .map(|i| if i % 2 == 0 { -5000 } else { 5000 })
+            .collect();
+        assert!(encode_range8(&v).is_none());
+        assert_round_trips(&v, 16, 16, None);
+    }
+
+    #[test]
+    fn range_formats_round_trip_directly() {
+        // Exercise both range formats regardless of which best-of picks.
+        let cases: Vec<Vec<i16>> = vec![
+            vec![0; 100],
+            vec![1],
+            (0..500).map(|i| (i % 7) as i16 - 3).collect(),
+            (0..500)
+                .map(|i| ((i * 31) % 30011) as i16 - 15000)
+                .collect(),
+        ];
+        for (k, v) in cases.iter().enumerate() {
+            for data in [Some(encode_range(v)), encode_range8(v)]
+                .into_iter()
+                .flatten()
+            {
+                let line = v.len().clamp(1, 25);
+                let rows = v.len().div_ceil(line);
+                let mut padded = v.clone();
+                padded.resize(line * rows, 0);
+                let data = if padded.len() == v.len() {
+                    data
+                } else if data[0] == ENCODE_RANGE {
+                    encode_range(&padded)
+                } else {
+                    encode_range8(&padded).unwrap()
+                };
+                let mut dec = crate::entropy::SbDecoder::start(&data, 0, line, 0).unwrap();
+                let mut got = Vec::new();
+                let mut buf = vec![0f32; line];
+                for _ in 0..rows {
+                    dec.decode_line(&data, 0, 0, line, &mut buf, 1.0).unwrap();
+                    got.extend(buf.iter().map(|&x| x as i16));
+                }
+                assert_eq!(got, padded, "case {k} format {}", data[0]);
+            }
+        }
     }
 
     #[test]

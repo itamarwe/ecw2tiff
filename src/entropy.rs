@@ -103,6 +103,121 @@ impl RangeDecoder {
 }
 
 // ---------------------------------------------------------------------------
+// Range coder, encode side (mirror of RangeDecoder above)
+// ---------------------------------------------------------------------------
+
+/// Encoder half of the same coder [`RangeDecoder`] reads.
+///
+/// The output byte a step produces is not always final: adding to `low` can
+/// carry into bytes already computed. The coder therefore holds the most
+/// recent byte in `buffer` and counts deferred `0xff` bytes in `pending`;
+/// when the carry is finally resolved they are flushed as `0xff` (no carry)
+/// or as `0x00` after incrementing `buffer` (carry).
+pub struct RangeEncoder {
+    low: u32,
+    range: u32,
+    buffer: u8,
+    pending: u32,
+    out: Vec<u8>,
+}
+
+impl Default for RangeEncoder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl RangeEncoder {
+    pub fn new() -> RangeEncoder {
+        RangeEncoder {
+            low: 0,
+            range: TOP_VALUE,
+            buffer: 0, // the byte RangeDecoder::start reads and discards
+            pending: 0,
+            out: Vec::new(),
+        }
+    }
+
+    /// One normalization step: retire the held byte and shift eight bits of
+    /// `low` out. Split from [`Self::normalize`] so the flush can run it
+    /// unconditionally.
+    fn normalize_step(&mut self) {
+        if self.low < 0xffu32 << SHIFT_BITS {
+            // No carry can reach the held byte any more.
+            self.out.push(self.buffer);
+            for _ in 0..self.pending {
+                self.out.push(0xff);
+            }
+            self.pending = 0;
+            self.buffer = (self.low >> SHIFT_BITS) as u8;
+        } else if self.low & TOP_VALUE != 0 {
+            // Carry: the held byte increments and deferred 0xff bytes wrap.
+            self.out.push(self.buffer.wrapping_add(1));
+            for _ in 0..self.pending {
+                self.out.push(0x00);
+            }
+            self.pending = 0;
+            self.buffer = (self.low >> SHIFT_BITS) as u8;
+        } else {
+            // Top byte is 0xff and the carry is still undecided: defer.
+            self.pending += 1;
+        }
+        self.range <<= 8;
+        self.low = (self.low << 8) & (TOP_VALUE - 1);
+    }
+
+    fn normalize(&mut self) {
+        while self.range <= BOTTOM_VALUE {
+            self.normalize_step();
+        }
+    }
+
+    /// Encode one symbol given its cumulative frequency interval, with a
+    /// total of `1 << shift`. Mirrors `decode_culshift` + `decode_update`,
+    /// including the branch on whether the interval reaches the top.
+    pub fn encode_shift(&mut self, sy_f: u32, lt_f: u32, shift: u32) {
+        self.normalize();
+        let r = self.range >> shift;
+        let tmp = r.wrapping_mul(lt_f);
+        self.low = self.low.wrapping_add(tmp);
+        if (lt_f + sy_f) >> shift != 0 {
+            self.range = self.range.wrapping_sub(tmp);
+        } else {
+            self.range = r.wrapping_mul(sy_f);
+        }
+    }
+
+    /// Flush and return the stream.
+    ///
+    /// Rather than Schindler's minimal-tail `done_encoding`, this writes out
+    /// every bit of `low`: four unconditional normalization steps shift all
+    /// 31 significant bits into bytes, then the held byte and any deferred
+    /// run follow. The decoder reconstructs exactly `low`, which lies inside
+    /// the final interval, so this is correct by construction; it costs at
+    /// most a few bytes more per stream, and emitting too *few* tail bytes
+    /// would corrupt the last symbols.
+    pub fn finish(mut self) -> Vec<u8> {
+        for _ in 0..4 {
+            self.normalize_step();
+        }
+        self.out.push(self.buffer);
+        for _ in 0..self.pending {
+            self.out.push(0xff);
+        }
+        self.out
+    }
+}
+
+/// Encode one byte-symbol (0..=256) with the range coder + model — the exact
+/// inverse of [`range_symbol`], in the same order (look up, encode, update).
+#[inline]
+pub fn range_encode_symbol(enc: &mut RangeEncoder, qsm: &mut QsModel, sym: usize) {
+    let (sy, lt) = qsm.getfreq(sym);
+    enc.encode_shift(sy, lt, QSM_LG_TOTF as u32);
+    qsm.update(sym);
+}
+
+// ---------------------------------------------------------------------------
 // Quasistatic model (qsmodel), n = 257 symbols, total frequency 1 << 12
 // ---------------------------------------------------------------------------
 
@@ -836,6 +951,68 @@ mod tests {
     fn huffman_truncated_tree_errors() {
         let mut pos = 0usize;
         assert!(HuffTree::parse(&[0x05, 0x00, 0x00, 0x45], &mut pos).is_err());
+    }
+
+    /// Encoder and decoder must stay in lockstep through the model: encode a
+    /// symbol stream, decode it back with fresh models on both sides.
+    fn assert_range_lockstep(syms: &[usize], label: &str) {
+        let mut enc = RangeEncoder::new();
+        let mut qsm = QsModel::new();
+        for &s in syms {
+            range_encode_symbol(&mut enc, &mut qsm, s);
+        }
+        let data = enc.finish();
+
+        let mut rc = RangeDecoder::start(&data, 0);
+        let mut qsm = QsModel::new();
+        let got: Vec<usize> = (0..syms.len())
+            .map(|_| range_symbol(&mut rc, &mut qsm, &data))
+            .collect();
+        assert_eq!(got, syms, "{label}: range round-trip mismatch");
+    }
+
+    fn pseudo_syms(n: usize, salt: u64, modulo: usize) -> Vec<usize> {
+        (0..n)
+            .map(|i| {
+                let x = (i as u64 + 1)
+                    .wrapping_mul(6364136223846793005)
+                    .wrapping_add(salt);
+                ((x >> 33) as usize) % modulo
+            })
+            .collect()
+    }
+
+    #[test]
+    fn range_coder_round_trips_short_streams() {
+        for n in [0usize, 1, 2, 3, 8, 17] {
+            assert_range_lockstep(&pseudo_syms(n, 1, 257), &format!("n={n}"));
+        }
+    }
+
+    #[test]
+    fn range_coder_round_trips_skewed_and_uniform() {
+        // Skewed (mostly one symbol) exercises long runs at one end of the
+        // interval; uniform exercises the whole alphabet.
+        for &modulo in &[2usize, 8, 256, 257] {
+            assert_range_lockstep(
+                &pseudo_syms(5000, modulo as u64, modulo),
+                &format!("mod={modulo}"),
+            );
+        }
+        let skewed: Vec<usize> = (0..5000)
+            .map(|i| if i % 50 == 0 { 200 } else { 7 })
+            .collect();
+        assert_range_lockstep(&skewed, "skewed");
+        assert_range_lockstep(&vec![0usize; 5000], "all-zero");
+        assert_range_lockstep(&vec![256usize; 3000], "all-max");
+    }
+
+    /// Long streams cross many QsModel rescales (it rescales roughly every
+    /// 2000 symbols) and make the carry / deferred-0xff paths near-certain.
+    #[test]
+    fn range_coder_survives_model_rescales_and_carries() {
+        let syms = pseudo_syms(200_000, 99, 257);
+        assert_range_lockstep(&syms, "200k");
     }
 
     #[test]
