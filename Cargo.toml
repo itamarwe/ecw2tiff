@@ -1,6 +1,6 @@
 [package]
 name = "ecw2tiff"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "From-scratch ECW (v2/v3) decoder and BigTIFF converter"
 license = "MIT"
