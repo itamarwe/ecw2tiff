@@ -123,6 +123,75 @@ for the whole decode+encode. On an M1 (4P+4E) tile decoding scales ~4.7×
 across 8 threads, and an in-process tile is ~100× faster than spawning
 the CLI and re-encoding with GDAL per tile.
 
+## Encoding (experimental)
+
+`img2ecw` writes ECW v2 files — the inverse of everything above. It takes a
+binary PGM/PPM (`gdal_translate -of PNM`, ImageMagick, ffmpeg all produce
+one) and builds the wavelet pyramid, quantizes it and writes the container:
+
+```bash
+img2ecw input.ppm output.ecw
+img2ecw --levels 5 --projection GEODETIC --datum WGS84 input.ppm out.ecw
+```
+
+The forward transform is an exact inverse of the decoder's synthesis, so at
+the default scale factor the round trip is **bit-exact** for synthetic images
+(gradients, checkerboards, 1-pixel alternating patterns, RGB through the
+YCbCr transform) and within one count on real aerial photography.
+
+For lossy output, ask for a compression ratio:
+
+```bash
+img2ecw --ratio 20 input.ppm output.ecw
+```
+
+Each sideband is encoded every way the decoder can read — raw int16,
+all-zeros, zero-run RLE, Huffman, and both range-coder forms — and the
+smallest is kept, so a format can only ever shrink output. `--ratio`
+searches for the quantization strength that lands nearest the requested
+ratio, quantizing per level with the same curve real ECW files use (luma
+bins halving per level, chroma about 3x luma). On a 512x512 aerial crop:
+
+| mode | size | ratio | PSNR |
+|------|------|-------|------|
+| lossless | 387 KB | 2.0x | exact |
+| `--ratio 5` | 149 KB | 5.2x | 58.4 dB |
+| `--ratio 10` | 74 KB | 10.4x | 57.0 dB |
+| `--ratio 20` | 38 KB | 20.2x | 29.8 dB |
+| `--ratio 100` | 7.6 KB | 101x | 25.3 dB |
+
+Quantization is chosen, not fixed. For a requested ratio the encoder tries
+several zero-bin widths and keeps whichever predicts the least error at that
+size — predicted in the pixel domain, by scaling each level's coefficient
+error with the measured gain from that level to the image
+(`fdwt::detail_gain`), so no decoding is needed to compare candidates. That
+is worth up to +2.5 dB over using a fixed rounding rule. `--strength` sets
+quantization directly if you would rather not search, and `--deadzone`
+pins the zero-bin width.
+
+One negative result worth recording, since it is easy to assume otherwise:
+allocating bins by measured band gain — the textbook MSE-optimal rule,
+bins proportional to `1 / gain` — measured *worse* than the simple halving
+curve real files use, by 1-3 dB at matched sizes. That rule assumes a
+high-rate regime; at these ratios most coefficients quantize to zero and the
+assumption does not hold. The halving curve is kept because it measures
+better.
+
+Which format wins is content-dependent, and worth knowing if you extend
+this: Huffman dominates quantized detail bands, because it codes a run of
+zeros as a *single* symbol from the run/value alphabet, while the range
+formats spend one or two adaptively-coded byte-symbols per coefficient. The
+range coder earns its place on the smooth, large-magnitude `LL` band and on
+streams with coefficients beyond +/-16383, which no other format can
+compress. Adding it bought about 1% overall — see
+`examples/format_choice.rs` for the per-format comparison.
+
+Remaining gaps: rate-distortion is still below a mature ECW encoder at a
+given ratio (the gap is in rate allocation across levels, not entropy
+coding); the whole image is held in memory, so this suits modest rasters
+rather than the gigapixel mosaics the decoder streams; and dimensions must
+be divisible by `2^levels`.
+
 ## How it works
 
 ECW is a wavelet codec: a multi-resolution QMF pyramid where each level
