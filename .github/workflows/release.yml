@@ -5,12 +5,15 @@
 # npm binaries are built with --no-default-features (pure Rust, no libjpeg-
 # turbo) so they run anywhere with zero native dependencies.
 #
-# Publishing uses npm trusted publishing (OIDC) — no NPM_TOKEN secret. Each
-# of the six packages must have this repo + workflow configured as a Trusted
-# Publisher on npmjs.com (allowed action: "npm publish"). Trusted publishing
-# cannot create a brand-new package, so the very first release is published
-# locally with npm/first-publish.sh; run this workflow manually
-# (workflow_dispatch) to produce the binaries for that.
+# One npm package ships every platform binary (they total under 2 MB), so
+# there is a single name to publish and no optionalDependencies to resolve.
+#
+# Publishing uses npm trusted publishing (OIDC) — no NPM_TOKEN secret. The
+# package must have this repo + workflow configured as a Trusted Publisher on
+# npmjs.com (allowed action: "npm publish"). Trusted publishing cannot create
+# a brand-new package, so the very first release is published locally with
+# npm/first-publish.sh; run this workflow manually (workflow_dispatch) to
+# produce the binaries for that.
 name: release
 
 on:
@@ -93,17 +96,11 @@ jobs:
           version=$(node -p "require('./npm/ecw2tiff/package.json').version")
           [ "v$version" = "$GITHUB_REF_NAME" ] || {
             echo "tag $GITHUB_REF_NAME != package version $version"; exit 1; }
-      - name: Publish platform packages
+      - name: Assemble and publish the npm package
         run: |
           set -euo pipefail
-          for pair in "darwin arm64" "darwin x64" "linux x64" "linux arm64" "win32 x64"; do
-            set -- $pair
-            exe=ecw2tiff; [ "$1" = win32 ] && exe=ecw2tiff.exe
-            node npm/make-platform-package.mjs "$1" "$2" "artifacts/bin-$1-$2/$exe" dist
-            npm publish --access public "./dist/ecw2tiff-$1-$2"
-          done
-      - name: Publish launcher package
-        run: npm publish --access public ./npm/ecw2tiff
+          node npm/assemble.mjs artifacts
+          npm publish --access public ./npm/ecw2tiff
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
