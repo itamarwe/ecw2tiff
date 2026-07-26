@@ -62,7 +62,10 @@ pub fn synth_1d(a: &[f64], b: &[f64]) -> Vec<f64> {
 /// length `m`. Exact inverse of [`synth_1d`].
 pub fn forward_1d(s: &[f64]) -> (Vec<f64>, Vec<f64>) {
     let n = s.len();
-    assert!(n >= 2 && n % 2 == 0, "signal length must be even and >= 2");
+    assert!(
+        n >= 2 && n.is_multiple_of(2),
+        "signal length must be even and >= 2"
+    );
     let m = n / 2;
     if m == 1 {
         // a(1)=a(0), b(-1)=b(0): s[0] = a-b, s[1] = a+b.
@@ -241,7 +244,7 @@ pub fn synth_2d_reference(sb: &Subbands) -> Plane {
 /// Exact inverse of [`synth_2d`].
 pub fn forward_2d(p: &Plane) -> Subbands {
     assert!(
-        p.w >= 2 && p.h >= 2 && p.w % 2 == 0 && p.h % 2 == 0,
+        p.w >= 2 && p.h >= 2 && p.w.is_multiple_of(2) && p.h.is_multiple_of(2),
         "plane dimensions must be even and >= 2 (got {}x{})",
         p.w,
         p.h
@@ -262,16 +265,16 @@ pub fn forward_2d(p: &Plane) -> Subbands {
     let mut hh = Plane::new(mw, mh);
     let mut col = vec![0.0f64; p.h];
     for x in 0..mw {
-        for y in 0..p.h {
-            col[y] = lo_x.at(x, y);
+        for (y, c) in col.iter_mut().enumerate() {
+            *c = lo_x.at(x, y);
         }
         let (a, b) = forward_1d(&col);
         for y in 0..mh {
             ll.set(x, y, a[y]);
             lh.set(x, y, b[y]);
         }
-        for y in 0..p.h {
-            col[y] = hi_x.at(x, y);
+        for (y, c) in col.iter_mut().enumerate() {
+            *c = hi_x.at(x, y);
         }
         let (a, b) = forward_1d(&col);
         for y in 0..mh {
