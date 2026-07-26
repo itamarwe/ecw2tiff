@@ -26,9 +26,27 @@ cargo build --release
 ```
 
 By default JPEG tiles are encoded with libjpeg-turbo (SIMD), which must be
-present on the system (`brew install jpeg-turbo` on macOS,
-`apt install libturbojpeg0-dev` on Debian/Ubuntu). For a pure-Rust binary
-with no native dependencies, build with:
+present on the system, **and** pkg-config, which is how the build finds it:
+
+```bash
+brew install jpeg-turbo pkg-config          # macOS
+apt install libturbojpeg0-dev pkg-config    # Debian/Ubuntu
+```
+
+Without pkg-config the build does not stop at a clear message. It falls back
+to compiling a vendored copy of libjpeg-turbo, which needs cmake, and fails
+with:
+
+```text
+failed to execute command: No such file or directory (os error 2)
+is `cmake` not installed?
+```
+
+That names the wrong dependency — installing pkg-config is the fix, and lets
+the build link the libjpeg-turbo you already have.
+
+For a pure-Rust binary with no native dependencies and nothing to install,
+build with:
 
 ```bash
 cargo build --release --no-default-features
@@ -87,11 +105,28 @@ server), the crate also builds an in-process Python extension via
 directly — no per-tile process spawn, no intermediate file, and the tile
 is JPEG-encoded a single time from the decoded pixels.
 
+Released versions install as a self-contained wheel — pure-Rust, so there is
+nothing to build and no system libjpeg-turbo to install:
+
+```bash
+pip install ecw2tiff
+```
+
+Installing from a checkout or straight from git builds the crate. That is also
+pure-Rust by default, so it needs only a Rust toolchain:
+
+```bash
+pip install .                                  # or: pip install 'git+https://github.com/itamarwe/ecw2tiff'
+```
+
+To develop against it, or to opt back into libjpeg-turbo's SIMD JPEG encoding
+(~20% faster, and then subject to the build prerequisites above):
+
 ```bash
 pip install maturin
-maturin develop --release        # build + install into the active venv
-# (needs libjpeg-turbo present; add --no-default-features for pure Rust,
-#  or --features python,webp to enable WebP tile output)
+maturin develop --release                      # pure Rust, matching the wheels
+maturin develop --release -F turbo             # link system libjpeg-turbo
+maturin develop --release -F webp              # add WebP tile output
 ```
 
 ```python
