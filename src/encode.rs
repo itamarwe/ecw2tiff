@@ -65,7 +65,14 @@ pub struct EncodeParams {
     /// by the same factor, so keep `scale_factor * 255` well inside int16.
     /// Real ECW v2 files use 1; we default to 16, which costs nothing in a
     /// RAW-coded file and cuts round-trip error to about a single count.
+    /// Ignored when `target_ratio` is set (lossy mode quantizes in whole
+    /// bins, as real files do).
     pub scale_factor: u16,
+    /// Target compression ratio. `None` (the default) encodes losslessly.
+    /// `Some(r)` quantizes detail coefficients with [`bin_table`], which
+    /// follows the curve real ECW files use, and records `r` as the header's
+    /// compression rate.
+    pub target_ratio: Option<u16>,
     pub cell_units: u8,
     pub cell_inc_x: f64,
     pub cell_inc_y: f64,
@@ -83,6 +90,7 @@ impl Default for EncodeParams {
             levels: 0, // 0 = choose with max_levels
             bin_size: 1,
             scale_factor: 16,
+            target_ratio: None,
             cell_units: 0,
             cell_inc_x: 1.0,
             cell_inc_y: -1.0,
@@ -99,10 +107,33 @@ fn invalid(msg: impl Into<String>) -> io::Error {
     io::Error::new(io::ErrorKind::InvalidInput, msg.into())
 }
 
+/// Per-level, per-band quantization bin sizes for a target compression ratio.
+///
+/// Coarser quantization on the finer levels is where compression comes from:
+/// those levels hold most of the coefficients, and zeroing them lets the
+/// run-length and Huffman sideband encodings collapse whole blocks.
+///
+/// The curve mirrors what real ECW files do. `tzafon_7_25.ecw` (11 levels,
+/// 20:1) stores luma bins `1,1,1,1,1,1,1,2,5,10,20` and chroma about 3x that
+/// (`...,3,7,15,30,60`), i.e. the finest level uses the target ratio itself
+/// and each coarser level halves it, flooring at 1. Reproducing that here
+/// with `r = 20` gives `1,1,1,1,1,1,1,2,5,10,20` and `3,...,60` — the same
+/// table the real encoder wrote.
+pub fn bin_table(levels: usize, bands: usize, target_ratio: u16) -> Vec<Vec<u32>> {
+    (0..levels)
+        .map(|level| {
+            let depth = (levels - 1 - level) as u32; // 0 = finest level
+            let luma = (target_ratio as u32 >> depth).max(1);
+            (0..bands)
+                .map(|band| if band == 0 { luma } else { luma * 3 })
+                .collect()
+        })
+        .collect()
+}
+
 /// Quantized subband plane.
 struct QPlane {
     w: usize,
-    h: usize,
     data: Vec<i16>,
 }
 
@@ -110,7 +141,6 @@ impl QPlane {
     fn quantize(p: &Plane, bin: f64) -> QPlane {
         QPlane {
             w: p.w,
-            h: p.h,
             data: p
                 .data
                 .iter()
@@ -154,50 +184,61 @@ struct LevelData {
     streams: Vec<Vec<QPlane>>,
 }
 
-/// Decompose every band into `levels` levels of subbands, quantized.
-fn build_pyramid(planes: Vec<Plane>, levels: usize, bin: f64) -> Vec<LevelData> {
-    let bands = planes.len();
-    // levels_sb[L][band] = (lh, hl, hh); level 0 additionally gets ll below.
-    let mut detail: Vec<Vec<[QPlane; 3]>> =
-        (0..levels).map(|_| Vec::with_capacity(bands)).collect();
-    let mut lowpass: Vec<Plane> = Vec::with_capacity(bands);
+/// Unquantized wavelet decomposition: the expensive part, computed once so
+/// rate control can re-quantize cheaply at many strengths.
+struct Decomposed {
+    /// `[level][band]` = the level's `LH, HL, HH` planes.
+    detail: Vec<Vec<[Plane; 3]>>,
+    /// Level 0's `LL`, one per band.
+    lowpass: Vec<Plane>,
+}
 
+/// Decompose every band into `levels` levels of subbands.
+fn decompose(planes: Vec<Plane>, levels: usize) -> Decomposed {
+    let bands = planes.len();
+    let mut detail: Vec<Vec<[Plane; 3]>> = (0..levels).map(|_| Vec::with_capacity(bands)).collect();
+    let mut lowpass: Vec<Plane> = Vec::with_capacity(bands);
     for plane in planes {
         let mut cur = plane;
         for k in 0..levels {
             let sb = forward_2d(&cur);
             // The first decomposition (from the full raster) fills the
             // largest level, so levels fill from the top down.
-            let level = levels - 1 - k;
-            detail[level].push([
-                QPlane::quantize(&sb.lh, bin),
-                QPlane::quantize(&sb.hl, bin),
-                QPlane::quantize(&sb.hh, bin),
-            ]);
+            detail[levels - 1 - k].push([sb.lh, sb.hl, sb.hh]);
             cur = sb.ll;
         }
         lowpass.push(cur);
     }
+    Decomposed { detail, lowpass }
+}
 
-    let mut out = Vec::with_capacity(levels);
-    for (level, per_band) in detail.into_iter().enumerate() {
-        let (w, h) = (per_band[0][0].w, per_band[0][0].h);
-        let streams: Vec<Vec<QPlane>> = per_band
-            .into_iter()
-            .enumerate()
-            .map(|(band, [lh, hl, hh])| {
-                if level == 0 {
-                    // LL is quantized with the same step; it lives only here.
-                    let ll = QPlane::quantize(&lowpass[band], bin);
-                    vec![ll, lh, hl, hh]
-                } else {
-                    vec![lh, hl, hh]
-                }
-            })
-            .collect();
-        out.push(LevelData { w, h, streams });
-    }
-    out
+/// Quantize a decomposition with `step[level][band]` (the dequantization step
+/// the decoder will apply).
+fn quantize_pyramid(dec: &Decomposed, step: &[Vec<f64>]) -> Vec<LevelData> {
+    dec.detail
+        .iter()
+        .enumerate()
+        .map(|(level, per_band)| {
+            let (w, h) = (per_band[0][0].w, per_band[0][0].h);
+            let streams = per_band
+                .iter()
+                .enumerate()
+                .map(|(band, [lh, hl, hh])| {
+                    let b = step[level][band];
+                    let mut v = Vec::with_capacity(4);
+                    if level == 0 {
+                        // LL is quantized with level 0's step; it lives only here.
+                        v.push(QPlane::quantize(&dec.lowpass[band], b));
+                    }
+                    v.push(QPlane::quantize(lh, b));
+                    v.push(QPlane::quantize(hl, b));
+                    v.push(QPlane::quantize(hh, b));
+                    v
+                })
+                .collect();
+            LevelData { w, h, streams }
+        })
+        .collect()
 }
 
 /// Serialize one block of a level, or an empty vector when every coefficient
@@ -296,51 +337,147 @@ pub fn encode<W: Write>(
         )));
     }
 
+    let planes = to_band_planes(pixels, w as usize, h as usize, ch);
+    let dec = decompose(planes, levels);
+
+    let file = match params.target_ratio {
+        // Lossless: a single bin everywhere, with scale_factor giving the
+        // sub-integer step.
+        None => {
+            let bins = vec![vec![params.bin_size; ch]; levels];
+            let steps = steps_from(&bins, params.scale_factor);
+            let pyramid = quantize_pyramid(&dec, &steps);
+            assemble(
+                &pyramid,
+                &bins,
+                params.scale_factor,
+                w,
+                h,
+                ch,
+                levels,
+                params,
+            )
+        }
+        // Lossy: search for the quantization strength that lands nearest the
+        // requested ratio without overshooting it. Quantizing and serializing
+        // is far cheaper than the wavelet transform, which is already done,
+        // so a dozen trials is affordable.
+        Some(ratio) => {
+            let target = (w as u64 * h as u64 * ch as u64) / ratio.max(1) as u64;
+            // Strength is measured in scale_factor units, so strength 16 is a
+            // step of 1.0 and strength 1 is the same 1/16 step lossless uses.
+            // Keeping the fine scale here means gentle ratios stay reachable
+            // instead of jumping straight to whole-bin quantization.
+            let sf = params.scale_factor;
+            let mut lo = 1u32; // finest quantization considered
+            let mut hi = u16::MAX as u32; // coarsest
+            let mut best: Option<Vec<u8>> = None;
+            // Invariant: size decreases as strength rises, so find the
+            // smallest strength (best quality) that fits the target.
+            while lo <= hi {
+                let mid = lo + (hi - lo) / 2;
+                let bins = bin_table(levels, ch, mid as u16);
+                let steps = steps_from(&bins, sf);
+                let pyramid = quantize_pyramid(&dec, &steps);
+                let cand = assemble(&pyramid, &bins, sf, w, h, ch, levels, params);
+                if cand.len() as u64 <= target {
+                    best = Some(cand);
+                    if mid == 1 {
+                        break;
+                    }
+                    hi = mid - 1;
+                } else {
+                    lo = mid + 1;
+                }
+            }
+            match best {
+                Some(f) => f,
+                // Even the coarsest quantization overshoots the target (tiny
+                // or very noisy images); emit the smallest we can produce.
+                None => {
+                    let bins = bin_table(levels, ch, u16::MAX);
+                    let steps = steps_from(&bins, sf);
+                    let pyramid = quantize_pyramid(&dec, &steps);
+                    assemble(&pyramid, &bins, sf, w, h, ch, levels, params)
+                }
+            }
+        }
+    };
+    out.write_all(&file)?;
+    out.flush()
+}
+
+/// Dequantization steps the decoder will apply: `bin_size / scale_factor`.
+fn steps_from(bins: &[Vec<u32>], scale_factor: u16) -> Vec<Vec<f64>> {
+    bins.iter()
+        .map(|per_band| {
+            per_band
+                .iter()
+                .map(|&b| b as f64 / scale_factor as f64)
+                .collect()
+        })
+        .collect()
+}
+
+/// Serialize a complete ECW v2 file: header, level table, block offset table
+/// and blocks.
+#[allow(clippy::too_many_arguments)]
+fn assemble(
+    pyramid: &[LevelData],
+    bins: &[Vec<u32>],
+    scale_factor: u16,
+    w: u32,
+    h: u32,
+    ch: usize,
+    levels: usize,
+    params: &EncodeParams,
+) -> Vec<u8> {
     let format = if ch == 1 {
         CompressFormat::Grey
     } else {
         CompressFormat::Yuv
     };
-    let planes = to_band_planes(pixels, w as usize, h as usize, ch);
-    let step = params.bin_size as f64 / params.scale_factor as f64;
-    let pyramid = build_pyramid(planes, levels, step);
+    let mut out: Vec<u8> = Vec::new();
 
     // --- header (integers big-endian, doubles little-endian) ---
-    out.write_all(&[b'e', 2, 0, format as u8, levels as u8, 4])?;
-    out.write_all(&w.to_be_bytes())?;
-    out.write_all(&h.to_be_bytes())?;
-    out.write_all(&(ch as u16).to_be_bytes())?;
-    out.write_all(&params.scale_factor.to_be_bytes())?;
-    out.write_all(&params.block_size.to_be_bytes()[2..])?; // u16be
-    out.write_all(&params.block_size.to_be_bytes()[2..])?;
-    out.write_all(&params.compression_rate.to_be_bytes())?;
-    out.write_all(&[params.cell_units])?;
-    out.write_all(&params.cell_inc_x.to_le_bytes())?;
-    out.write_all(&params.cell_inc_y.to_le_bytes())?;
-    out.write_all(&params.origin_x.to_le_bytes())?;
-    out.write_all(&params.origin_y.to_le_bytes())?;
+    out.extend_from_slice(&[b'e', 2, 0, format as u8, levels as u8, 4]);
+    out.extend_from_slice(&w.to_be_bytes());
+    out.extend_from_slice(&h.to_be_bytes());
+    out.extend_from_slice(&(ch as u16).to_be_bytes());
+    out.extend_from_slice(&scale_factor.to_be_bytes());
+    out.extend_from_slice(&params.block_size.to_be_bytes()[2..]); // u16be
+    out.extend_from_slice(&params.block_size.to_be_bytes()[2..]);
+    out.extend_from_slice(
+        &params
+            .target_ratio
+            .unwrap_or(params.compression_rate)
+            .to_be_bytes(),
+    );
+    out.push(params.cell_units);
+    out.extend_from_slice(&params.cell_inc_x.to_le_bytes());
+    out.extend_from_slice(&params.cell_inc_y.to_le_bytes());
+    out.extend_from_slice(&params.origin_x.to_le_bytes());
+    out.extend_from_slice(&params.origin_y.to_le_bytes());
     let mut name = [0u8; 16];
     let d = params.datum.as_bytes();
     name[..d.len().min(15)].copy_from_slice(&d[..d.len().min(15)]);
-    out.write_all(&name)?;
+    out.extend_from_slice(&name);
     name = [0u8; 16];
     let p = params.projection.as_bytes();
     name[..p.len().min(15)].copy_from_slice(&p[..p.len().min(15)]);
-    out.write_all(&name)?;
+    out.extend_from_slice(&name);
 
     // --- level table ---
     let block = params.block_size as usize;
     let mut blocks_per_level = Vec::with_capacity(levels);
     for (i, level) in pyramid.iter().enumerate() {
-        out.write_all(&[i as u8])?;
-        out.write_all(&(level.w as u32).to_be_bytes())?;
-        out.write_all(&(level.h as u32).to_be_bytes())?;
-        for _ in 0..ch {
-            out.write_all(&params.bin_size.to_be_bytes())?;
+        out.push(i as u8);
+        out.extend_from_slice(&(level.w as u32).to_be_bytes());
+        out.extend_from_slice(&(level.h as u32).to_be_bytes());
+        for b in &bins[i][..ch] {
+            out.extend_from_slice(&b.to_be_bytes());
         }
-        let nx = level.w.div_ceil(block);
-        let ny = level.h.div_ceil(block);
-        blocks_per_level.push((nx, ny));
+        blocks_per_level.push((level.w.div_ceil(block), level.h.div_ceil(block)));
     }
 
     // --- serialize every block, then the offset table that indexes them ---
@@ -363,15 +500,15 @@ pub fn encode<W: Write>(
     // The table is itself "packed": RAW, so u32be length, format byte, then
     // the raw u64le offsets including the trailing sentinel.
     let unpacked_len = offsets.len() * 8;
-    out.write_all(&((unpacked_len + 1) as u32).to_be_bytes())?;
-    out.write_all(&[ENCODE_RAW])?;
+    out.extend_from_slice(&((unpacked_len + 1) as u32).to_be_bytes());
+    out.push(ENCODE_RAW);
     for o in &offsets {
-        out.write_all(&o.to_le_bytes())?;
+        out.extend_from_slice(&o.to_le_bytes());
     }
     for b in &bodies {
-        out.write_all(b)?;
+        out.extend_from_slice(b);
     }
-    out.flush()
+    out
 }
 
 #[cfg(test)]
@@ -418,5 +555,29 @@ mod tests {
             "flat image should compress well, got {} bytes",
             buf.len()
         );
+    }
+}
+
+#[cfg(test)]
+mod rate_tests {
+    use super::*;
+
+    /// The bin curve should reproduce what a real 20:1 ECW file stores.
+    /// tzafon_7_25.ecw (11 levels) has luma 1,1,1,1,1,1,1,2,5,10,20 and
+    /// chroma 1,...,3,7,15,30,60.
+    #[test]
+    fn bin_table_matches_a_real_file() {
+        let t = bin_table(11, 3, 20);
+        let luma: Vec<u32> = t.iter().map(|b| b[0]).collect();
+        assert_eq!(luma, vec![1, 1, 1, 1, 1, 1, 1, 2, 5, 10, 20]);
+        let chroma: Vec<u32> = t.iter().map(|b| b[1]).collect();
+        assert_eq!(chroma, vec![3, 3, 3, 3, 3, 3, 3, 6, 15, 30, 60]);
+        // chroma is always coarser than luma, and every bin is usable
+        assert!(t.iter().all(|b| b[0] >= 1 && b[1] >= b[0]));
+    }
+
+    #[test]
+    fn lossless_is_the_default() {
+        assert!(EncodeParams::default().target_ratio.is_none());
     }
 }

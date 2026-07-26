@@ -18,7 +18,9 @@ USAGE:
 OPTIONS:
     --levels <n>       pyramid levels (default: as deep as the size allows)
     --block <n>        block size, multiple of 8 (default 64)
-    --scale <n>        quantization scale factor (default 16; higher = finer)
+    --ratio <n>        lossy: target compression ratio (e.g. 20). Omit for
+                       lossless encoding
+    --scale <n>        lossless quantization scale factor (default 16)
     --bin <n>          quantization bin size (default 1)
     --origin <x,y>     georeferencing origin (default 0,0)
     --cell <x,y>       cell size (default 1,-1)
@@ -107,6 +109,14 @@ fn main() {
             "--levels" => p.levels = next().parse().unwrap_or_else(|_| usage()),
             "--block" => p.block_size = next().parse().unwrap_or_else(|_| usage()),
             "--scale" => p.scale_factor = next().parse().unwrap_or_else(|_| usage()),
+            "--ratio" => {
+                let r: u16 = next().parse().unwrap_or_else(|_| usage());
+                if r == 0 {
+                    eprintln!("error: --ratio must be at least 1");
+                    exit(2);
+                }
+                p.target_ratio = Some(r);
+            }
             "--bin" => p.bin_size = next().parse().unwrap_or_else(|_| usage()),
             "--origin" => {
                 let (x, y) = parse_pair(&next());
@@ -167,11 +177,15 @@ fn main() {
         p.levels
     };
     eprintln!(
-        "wrote {} ({}x{}, {} band{}, {levels} levels)",
+        "wrote {} ({}x{}, {} band{}, {levels} levels, {})",
         pos[1],
         w,
         h,
         ch,
-        if ch == 1 { "" } else { "s" }
+        if ch == 1 { "" } else { "s" },
+        match p.target_ratio {
+            Some(r) => format!("lossy, target {r}:1"),
+            None => "lossless".to_string(),
+        }
     );
 }

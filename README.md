@@ -139,13 +139,30 @@ the default scale factor the round trip is **bit-exact** for synthetic images
 (gradients, checkerboards, 1-pixel alternating patterns, RGB through the
 YCbCr transform) and within one count on real aerial photography.
 
-Two things it is not, yet: sidebands are written with `ENCODE_RAW` (two
-bytes per coefficient, no entropy coding), so files are currently *larger*
-than the source raster — this is a correctness-first milestone, and the
-Huffman / range-coder sideband formats the decoder already reads are the
-next step. And the whole image is held in memory, so it suits modest
-rasters rather than the gigapixel mosaics the decoder streams. Dimensions
-must be divisible by `2^levels`.
+For lossy output, ask for a compression ratio:
+
+```bash
+img2ecw --ratio 20 input.ppm output.ecw
+```
+
+Each sideband is encoded four ways (raw int16, all-zeros, zero-run RLE and
+Huffman) and the smallest is kept, and `--ratio` searches for the
+quantization strength that lands nearest the requested ratio — quantizing
+per-level with the same curve real ECW files use (luma bins halving per
+level, chroma about 3x luma). On a 512x512 aerial crop:
+
+| mode | size | ratio | mean error |
+|------|------|-------|------------|
+| lossless | 391 KB | 2.0x | 0 |
+| `--ratio 5` | 145 KB | 5.4x | 0.11 |
+| `--ratio 20` | 39 KB | 20.1x | 8.3 |
+| `--ratio 100` | 8 KB | 101x | 11.5 |
+
+Remaining gaps: the range-coder sideband formats (3/4) are not written
+yet, so at a given size the quality is below what a real ECW encoder
+achieves; the whole image is held in memory, so this suits modest rasters
+rather than the gigapixel mosaics the decoder streams; and dimensions must
+be divisible by `2^levels`.
 
 ## How it works
 

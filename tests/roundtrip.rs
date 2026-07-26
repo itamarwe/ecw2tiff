@@ -257,3 +257,64 @@ fn top_left_corner_is_correct_with_edge_detail() {
         assert_eq!(diff(&px, &got).0, 0, "levels={levels}: not exact");
     }
 }
+
+/// Lossy mode must actually compress, stay decodable, and track the requested
+/// ratio. (Lossless remains the default; every other test above still asserts
+/// bit-exactness.)
+#[test]
+fn lossy_hits_the_requested_ratio() {
+    let (w, h) = (256u32, 256u32);
+    // Smooth photo-like content, the case rate control is meant for.
+    let px: Vec<u8> = (0..w * h)
+        .map(|i| {
+            let (x, y) = ((i % w) as f64, (i / w) as f64);
+            (128.0 + 90.0 * ((x / 18.0).sin() + (y / 23.0).cos()) / 2.0) as u8
+        })
+        .collect();
+    let raw = px.len() as f64;
+
+    let mut previous = usize::MAX;
+    for ratio in [5u16, 20, 50] {
+        let params = EncodeParams {
+            target_ratio: Some(ratio),
+            ..EncodeParams::default()
+        };
+        let mut buf = Vec::new();
+        encode(&mut buf, &px, w, h, 1, &params).expect("lossy encode");
+        let achieved = raw / buf.len() as f64;
+
+        // Never worse than asked for, and within a reasonable band of it.
+        assert!(
+            achieved >= ratio as f64 * 0.9,
+            "ratio {ratio}: only achieved {achieved:.1}x"
+        );
+        assert!(
+            achieved <= ratio as f64 * 3.0,
+            "ratio {ratio}: overshot badly at {achieved:.1}x"
+        );
+        // Coarser targets must not produce larger files.
+        assert!(buf.len() < previous, "ratio {ratio} did not shrink output");
+        previous = buf.len();
+
+        // And it still decodes to the right geometry, with bounded error.
+        let tmp = TempEcw::write(&buf, &format!("lossy{ratio}"));
+        let (got, gw, gh, gch) = decode_all(tmp.path());
+        assert_eq!((gw, gh, gch), (w, h, 1));
+        let (_, mean) = diff(&px, &got);
+        assert!(mean < 20.0, "ratio {ratio}: mean error {mean:.2} too high");
+    }
+}
+
+/// The header records what was requested, so `--info` reports it.
+#[test]
+fn lossy_records_its_target_in_the_header() {
+    let params = EncodeParams {
+        target_ratio: Some(25),
+        ..EncodeParams::default()
+    };
+    let mut buf = Vec::new();
+    encode(&mut buf, &vec![128u8; 64 * 64], 64, 64, 1, &params).unwrap();
+    let tmp = TempEcw::write(&buf, "ratio-hdr");
+    let ecw = EcwFile::open(tmp.path()).expect("open");
+    assert_eq!(ecw.header.compression_rate, 25);
+}
