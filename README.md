@@ -123,6 +123,30 @@ for the whole decode+encode. On an M1 (4P+4E) tile decoding scales ~4.7×
 across 8 threads, and an in-process tile is ~100× faster than spawning
 the CLI and re-encoding with GDAL per tile.
 
+## Encoding (experimental)
+
+`img2ecw` writes ECW v2 files — the inverse of everything above. It takes a
+binary PGM/PPM (`gdal_translate -of PNM`, ImageMagick, ffmpeg all produce
+one) and builds the wavelet pyramid, quantizes it and writes the container:
+
+```bash
+img2ecw input.ppm output.ecw
+img2ecw --levels 5 --projection GEODETIC --datum WGS84 input.ppm out.ecw
+```
+
+The forward transform is an exact inverse of the decoder's synthesis, so at
+the default scale factor the round trip is **bit-exact** for synthetic images
+(gradients, checkerboards, 1-pixel alternating patterns, RGB through the
+YCbCr transform) and within one count on real aerial photography.
+
+Two things it is not, yet: sidebands are written with `ENCODE_RAW` (two
+bytes per coefficient, no entropy coding), so files are currently *larger*
+than the source raster — this is a correctness-first milestone, and the
+Huffman / range-coder sideband formats the decoder already reads are the
+next step. And the whole image is held in memory, so it suits modest
+rasters rather than the gigapixel mosaics the decoder streams. Dimensions
+must be divisible by `2^levels`.
+
 ## How it works
 
 ECW is a wavelet codec: a multi-resolution QMF pyramid where each level

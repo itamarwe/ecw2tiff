@@ -6,6 +6,7 @@
 //! (`--features python`), which decodes map tiles without spawning the CLI.
 
 pub mod ecw3;
+pub mod encode;
 pub mod entropy;
 pub mod fdwt;
 pub mod header;

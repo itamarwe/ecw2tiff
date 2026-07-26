@@ -825,8 +825,8 @@ mod tests {
         // overflow the call stack with a recursive parser.
         const DEPTH: usize = 30000;
         let mut data = vec![0xff, 0xff];
-        data.extend(std::iter::repeat(0u8).take(DEPTH));
-        data.extend(std::iter::repeat(0x45u8).take(DEPTH + 1));
+        data.extend(std::iter::repeat_n(0u8, DEPTH));
+        data.extend(std::iter::repeat_n(0x45u8, DEPTH + 1));
         let mut pos = 0usize;
         let tree = HuffTree::parse(&data, &mut pos).unwrap();
         assert_eq!(tree.nodes.len(), 2 * DEPTH + 1);
