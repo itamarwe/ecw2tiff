@@ -285,6 +285,70 @@ pub fn forward_2d(p: &Plane) -> Subbands {
     Subbands { ll, lh, hl, hh }
 }
 
+// ---------------------------------------------------------------------------
+// Band gains
+// ---------------------------------------------------------------------------
+
+/// RMS pixel-domain gain of a unit coefficient in a detail subband `depth`
+/// levels below the full-resolution image (depth 0 = the finest level).
+///
+/// Quantization error in a subband reaches the image scaled by this factor,
+/// so equalizing each band's contribution to total error means bin sizes
+/// proportional to `1 / detail_gain(depth)`. Values are measured by pushing
+/// an impulse through the synthesis chain rather than assumed, because this
+/// filter is not orthonormal — the gains are 1.50, 2.06, 3.61, 6.97, ...,
+/// approaching a factor of two per level but noticeably smaller at the fine
+/// end, where a naive "double per level" rule would misallocate bits.
+///
+/// The gain depends only on depth, not on the pyramid's total height (each
+/// extra level above simply adds another synthesis stage), so a small
+/// measurement generalizes. Depths beyond what is measured extrapolate by
+/// the limiting factor of two.
+pub fn detail_gain(depth: usize) -> f64 {
+    use std::sync::OnceLock;
+    static GAINS: OnceLock<Vec<f64>> = OnceLock::new();
+    const MEASURED: usize = 7;
+    let g = GAINS.get_or_init(|| {
+        (0..MEASURED)
+            .map(|d| {
+                // Impulse in each detail band of the deepest level of a
+                // (d + 1)-level pyramid; 4x4 there is ample, since the gain
+                // is independent of extent.
+                let base = 4usize;
+                let mut rms = 0.0f64;
+                for band in 1..4 {
+                    let mut cur = Plane::new(base, base);
+                    for l in 0..=d {
+                        let s = base << l;
+                        let (mut lh, mut hl, mut hh) =
+                            (Plane::new(s, s), Plane::new(s, s), Plane::new(s, s));
+                        if l == 0 {
+                            match band {
+                                1 => lh.set(s / 2, s / 2, 1.0),
+                                2 => hl.set(s / 2, s / 2, 1.0),
+                                _ => hh.set(s / 2, s / 2, 1.0),
+                            }
+                        }
+                        cur = synth_2d(&Subbands {
+                            ll: cur,
+                            lh,
+                            hl,
+                            hh,
+                        });
+                    }
+                    rms += cur.data.iter().map(|v| v * v).sum::<f64>();
+                }
+                // RMS across the three detail bands of the level.
+                (rms / 3.0).sqrt()
+            })
+            .collect()
+    });
+    match g.get(depth) {
+        Some(&v) => v,
+        None => g[MEASURED - 1] * 2f64.powi((depth - (MEASURED - 1)) as i32),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

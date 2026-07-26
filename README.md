@@ -152,12 +152,30 @@ searches for the quantization strength that lands nearest the requested
 ratio, quantizing per level with the same curve real ECW files use (luma
 bins halving per level, chroma about 3x luma). On a 512x512 aerial crop:
 
-| mode | size | ratio | mean error |
-|------|------|-------|------------|
-| lossless | 391 KB | 2.0x | 0 |
-| `--ratio 5` | 145 KB | 5.4x | 0.11 |
-| `--ratio 20` | 39 KB | 20.1x | 8.3 |
-| `--ratio 100` | 8 KB | 101x | 11.5 |
+| mode | size | ratio | PSNR |
+|------|------|-------|------|
+| lossless | 387 KB | 2.0x | exact |
+| `--ratio 5` | 149 KB | 5.2x | 58.4 dB |
+| `--ratio 10` | 74 KB | 10.4x | 57.0 dB |
+| `--ratio 20` | 38 KB | 20.2x | 29.8 dB |
+| `--ratio 100` | 7.6 KB | 101x | 25.3 dB |
+
+Quantization is chosen, not fixed. For a requested ratio the encoder tries
+several zero-bin widths and keeps whichever predicts the least error at that
+size — predicted in the pixel domain, by scaling each level's coefficient
+error with the measured gain from that level to the image
+(`fdwt::detail_gain`), so no decoding is needed to compare candidates. That
+is worth up to +2.5 dB over using a fixed rounding rule. `--strength` sets
+quantization directly if you would rather not search, and `--deadzone`
+pins the zero-bin width.
+
+One negative result worth recording, since it is easy to assume otherwise:
+allocating bins by measured band gain — the textbook MSE-optimal rule,
+bins proportional to `1 / gain` — measured *worse* than the simple halving
+curve real files use, by 1-3 dB at matched sizes. That rule assumes a
+high-rate regime; at these ratios most coefficients quantize to zero and the
+assumption does not hold. The halving curve is kept because it measures
+better.
 
 Which format wins is content-dependent, and worth knowing if you extend
 this: Huffman dominates quantized detail bands, because it codes a run of

@@ -20,6 +20,10 @@ OPTIONS:
     --block <n>        block size, multiple of 8 (default 64)
     --ratio <n>        lossy: target compression ratio (e.g. 20). Omit for
                        lossless encoding
+    --strength <n>     lossy: quantization strength directly, skipping the
+                       size search (higher = smaller and coarser)
+    --deadzone <f>     zero-bin width in steps (0.5 = plain rounding).
+                       Default: chosen per encode by predicted error
     --scale <n>        lossless quantization scale factor (default 16)
     --bin <n>          quantization bin size (default 1)
     --origin <x,y>     georeferencing origin (default 0,0)
@@ -117,6 +121,15 @@ fn main() {
                 }
                 p.target_ratio = Some(r);
             }
+            "--deadzone" => {
+                let d: f64 = next().parse().unwrap_or_else(|_| usage());
+                if !(0.5..=2.0).contains(&d) {
+                    eprintln!("error: --deadzone must be between 0.5 and 2.0");
+                    exit(2);
+                }
+                p.deadzone = Some(d);
+            }
+            "--strength" => p.strength = Some(next().parse().unwrap_or_else(|_| usage())),
             "--bin" => p.bin_size = next().parse().unwrap_or_else(|_| usage()),
             "--origin" => {
                 let (x, y) = parse_pair(&next());
