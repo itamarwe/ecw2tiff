@@ -234,35 +234,42 @@ fn pull_line(
 
         let full_w = cur.level_size_x + cur.reflect_start_x + cur.reflect_end_x;
         if cur.current_line >= cur.y_size {
-            // Y reflection past the last line: line1 = line0
+            // Y reflection past the last line: line1 = line0 (already
+            // X-reflected when it was read).
             for c in 0..cur.bands * MAX_SIDEBAND {
                 let base = c * cur.stride;
                 cur.line1[base..base + full_w].copy_from_slice(&cur.line0[base..base + full_w]);
             }
         } else {
             cur.read_sideband_line(ecw)?;
-            // reflect line1 into line0 at the very first line
+
+            // X reflection on line1. This must happen before the first-line
+            // copy below: line0 is only ever filled by that copy or by the
+            // swap above, so copying an unreflected line1 would leave
+            // line0's edge samples at zero, and the even-row synthesis reads
+            // hl0/hh0 there — a wrong corner pixel that then feeds the level
+            // above (the deeper the pyramid, the larger the error).
+            if cur.reflect_start_x == 1 {
+                for c in 0..cur.bands * MAX_SIDEBAND {
+                    let base = c * cur.stride;
+                    cur.line1[base] = cur.line1[base + 1];
+                }
+            }
+            if cur.reflect_end_x == 1 {
+                let idx = cur.level_size_x + cur.reflect_start_x;
+                for c in 0..cur.bands * MAX_SIDEBAND {
+                    let base = c * cur.stride;
+                    cur.line1[base + idx] = cur.line1[base + idx - 1];
+                }
+            }
+
+            // Y reflection before the first line: line0 = line1
             if cur.reflect_start_y == 1 && cur.current_line == 0 {
                 for c in 0..cur.bands * MAX_SIDEBAND {
                     let base = c * cur.stride;
                     let (l0, l1) = (&mut cur.line0, &cur.line1);
                     l0[base..base + full_w].copy_from_slice(&l1[base..base + full_w]);
                 }
-            }
-        }
-
-        // X reflection on line1
-        if cur.reflect_start_x == 1 {
-            for c in 0..cur.bands * MAX_SIDEBAND {
-                let base = c * cur.stride;
-                cur.line1[base] = cur.line1[base + 1];
-            }
-        }
-        if cur.reflect_end_x == 1 {
-            let idx = cur.level_size_x + cur.reflect_start_x;
-            for c in 0..cur.bands * MAX_SIDEBAND {
-                let base = c * cur.stride;
-                cur.line1[base + idx] = cur.line1[base + idx - 1];
             }
         }
 
@@ -601,7 +608,10 @@ impl Region {
         let n_line_y = self.current_line as u32;
 
         while self.read_line > 0 {
-            let y = (n_line_y - self.read_line) + 1;
+            // Ordered to avoid an intermediate underflow: on the first
+            // scanline n_line_y is 0 while read_line is 1. (Release builds
+            // wrapped to the same value; debug builds panicked.)
+            let y = n_line_y + 1 - self.read_line;
             let mut refs: Vec<&mut [f32]> = self.ll.chunks_mut(self.out_w).collect();
             pull_line(&mut self.levels, ecw, y, &mut refs)?;
             self.read_line -= 1;
