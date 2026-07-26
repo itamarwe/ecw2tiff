@@ -11,6 +11,7 @@ pub mod entropy;
 pub mod fdwt;
 pub mod header;
 pub mod idwt;
+pub mod sbencode;
 pub mod tiff;
 
 #[cfg(feature = "python")]

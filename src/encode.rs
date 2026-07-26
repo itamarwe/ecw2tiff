@@ -33,6 +33,7 @@ use std::io::{self, Write};
 use crate::entropy::ENCODE_RAW;
 use crate::fdwt::{forward_2d, Plane};
 use crate::header::CompressFormat;
+use crate::sbencode::encode_sideband;
 
 /// Largest number of pyramid levels usable for `w` x `h`: each level halves
 /// both dimensions, so this is how many times 2 divides both (capped, and at
@@ -217,24 +218,31 @@ fn block_bytes(level: &LevelData, bx: usize, by: usize, block: usize) -> Vec<u8>
         return Vec::new();
     }
 
+    // Compress each sideband independently, best format per stream.
     let total_sb = level.streams.len() * level.streams[0].len();
-    let stream_len = 1 + rows * line_length * 2; // format byte + int16 payload
-    let offs_len = 4 * (total_sb - 1);
-    let mut out = Vec::with_capacity(offs_len + total_sb * stream_len);
-
-    // Offsets for streams 1.., relative to the end of this array. Every RAW
-    // stream in a block is the same size, so they are evenly spaced.
-    for i in 1..total_sb {
-        out.extend_from_slice(&((i * stream_len) as u32).to_be_bytes());
-    }
+    let mut vals = Vec::with_capacity(rows * line_length);
+    let mut streams: Vec<Vec<u8>> = Vec::with_capacity(total_sb);
     for plane in level.streams.iter().flatten() {
-        out.push(ENCODE_RAW);
+        vals.clear();
         for r in 0..rows {
             let base = (y0 + r) * plane.w + x0;
-            for &v in &plane.data[base..base + line_length] {
-                out.extend_from_slice(&v.to_le_bytes());
-            }
+            vals.extend_from_slice(&plane.data[base..base + line_length]);
         }
+        streams.push(encode_sideband(&vals));
+    }
+
+    // Offsets locate streams 1.. relative to the end of this array, so they
+    // are the running total of the preceding stream lengths.
+    let offs_len = 4 * (total_sb - 1);
+    let body: usize = streams.iter().map(|s| s.len()).sum();
+    let mut out = Vec::with_capacity(offs_len + body);
+    let mut at = 0usize;
+    for s in &streams[..total_sb - 1] {
+        at += s.len();
+        out.extend_from_slice(&(at as u32).to_be_bytes());
+    }
+    for s in &streams {
+        out.extend_from_slice(s);
     }
     out
 }
