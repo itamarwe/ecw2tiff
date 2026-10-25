@@ -19,14 +19,13 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyDict};
 
-use crate::header::EcwFile;
-use crate::idwt::Region;
+use crate::codec::{EcwImage, Window};
 use crate::tiff;
 
 /// A resident ECW reader. Open once, decode many tiles.
 #[pyclass(frozen)]
 struct EcwReader {
-    ecw: Arc<EcwFile>,
+    ecw: Arc<EcwImage>,
 }
 
 /// Decode the full-resolution rectangle `(x, y, w, h)` at `1/scale`, returning
@@ -34,44 +33,44 @@ struct EcwReader {
 /// The decoder walks the ECW's own pyramid, so a large `scale` reads few
 /// coefficients and stays cheap.
 fn decode_tile(
-    ecw: &EcwFile,
+    ecw: &EcwImage,
     x: u32,
     y: u32,
     w: u32,
     h: u32,
     scale: u32,
 ) -> Result<(Vec<u8>, u32, u32, usize), String> {
-    let hdr = &ecw.header;
+    let hdr = ecw.info();
     if w == 0 || h == 0 {
         return Err("tile width and height must be non-zero".into());
     }
     let x_end = x.checked_add(w).ok_or("x + w overflows")?;
     let y_end = y.checked_add(h).ok_or("y + h overflows")?;
-    if x_end > hdr.x_size || y_end > hdr.y_size {
+    if x_end > hdr.width || y_end > hdr.height {
         return Err(format!(
             "tile ({x},{y},{w},{h}) is outside the {}x{} image",
-            hdr.x_size, hdr.y_size
+            hdr.width, hdr.height
         ));
     }
     let number_x = w.div_ceil(scale);
     let number_y = h.div_ceil(scale);
-    let ch = hdr.output_channels();
+    let ch = hdr.channels();
 
-    let mut region = Region::start_rows(
-        ecw,
-        x,
-        y,
-        x_end - 1,
-        y_end - 1,
-        number_x,
-        number_y,
-        0,
-        number_y,
-    )?;
+    let window = Window {
+        x0: x,
+        y0: y,
+        x1: x_end - 1,
+        y1: y_end - 1,
+        out_width: number_x,
+        out_height: number_y,
+    };
+    let mut region = ecw.rows(window, 0, number_y).map_err(|e| e.to_string())?;
     let row_bytes = number_x as usize * ch;
     let mut buf = vec![0u8; row_bytes * number_y as usize];
     for row in 0..number_y as usize {
-        region.read_scanline(ecw, &mut buf[row * row_bytes..(row + 1) * row_bytes])?;
+        region
+            .read_row(&mut buf[row * row_bytes..(row + 1) * row_bytes])
+            .map_err(|e| e.to_string())?;
     }
     Ok((buf, number_x, number_y, ch))
 }
@@ -86,7 +85,7 @@ impl EcwReader {
     /// Open an ECW file, reading its header and block table once.
     #[new]
     fn new(path: &str) -> PyResult<Self> {
-        let ecw = EcwFile::open(Path::new(path))
+        let ecw = EcwImage::open(Path::new(path))
             .map_err(|e| PyValueError::new_err(format!("cannot open {path}: {e}")))?;
         Ok(EcwReader { ecw: Arc::new(ecw) })
     }
@@ -94,15 +93,15 @@ impl EcwReader {
     /// Header fields, mirroring `ecw2tiff --info`.
     #[getter]
     fn info<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let h = &self.ecw.header;
+        let h = self.ecw.info();
         let d = PyDict::new_bound(py);
-        d.set_item("version", h.version)?;
-        d.set_item("width", h.x_size)?;
-        d.set_item("height", h.y_size)?;
-        d.set_item("bands", h.nr_bands)?;
-        d.set_item("levels", h.num_levels)?;
-        d.set_item("block_size", (h.x_block_size, h.y_block_size))?;
-        d.set_item("cell_size", (h.cell_inc_x, h.cell_inc_y))?;
+        d.set_item("version", h.format_version)?;
+        d.set_item("width", h.width)?;
+        d.set_item("height", h.height)?;
+        d.set_item("bands", h.bands)?;
+        d.set_item("levels", h.stages)?;
+        d.set_item("block_size", (h.tile_width, h.tile_height))?;
+        d.set_item("cell_size", (h.cell_size_x, h.cell_size_y))?;
         d.set_item("origin", (h.origin_x, h.origin_y))?;
         d.set_item("datum", h.datum.as_str())?;
         d.set_item("projection", h.projection.as_str())?;
@@ -174,10 +173,10 @@ impl EcwReader {
     }
 
     fn __repr__(&self) -> String {
-        let h = &self.ecw.header;
+        let h = self.ecw.info();
         format!(
             "EcwReader(v{}, {}x{}, {} bands, {} levels)",
-            h.version, h.x_size, h.y_size, h.nr_bands, h.num_levels
+            h.format_version, h.width, h.height, h.bands, h.stages
         )
     }
 }
