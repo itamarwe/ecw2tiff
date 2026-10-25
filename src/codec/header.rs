@@ -1,4 +1,4 @@
-//! Header, stage record and tile index parsing (format spec sections 3 and 4).
+//! Header, stage record and tile index parsing (docs/SPEC.md sections 3 and 4).
 
 use super::entropy::Stream;
 use super::io::{ByteSource, FileHandle};

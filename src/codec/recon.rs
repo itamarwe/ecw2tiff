@@ -1,4 +1,4 @@
-//! Streaming, column-restricted wavelet reconstruction (format spec sections 5.8 and 6).
+//! Streaming, column-restricted wavelet reconstruction (docs/SPEC.md sections 5.8 and 6).
 //!
 //! The pyramid is evaluated lazily from the top: a [`Level`] (one stage's
 //! reconstruction) produces an output row on request, pulling the two input

@@ -1,4 +1,4 @@
-//! Entropy decoding of coefficient streams (format spec section 5).
+//! Entropy decoding of coefficient streams (docs/SPEC.md section 5).
 //!
 //! A [`Stream`] turns the bytes of one subband stream (or the v1/v2 tile
 //! directory) into 16-bit coefficients, one row at a time.

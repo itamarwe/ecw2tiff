@@ -149,6 +149,8 @@ ECW v3 wraps the same codestream in ISO-BMFF-style boxes (`ecwh`/`ihdr`
 header, `gtif` embedded GeoTIFF tags, `ecwc` codestream) and can carry a
 fourth, opacity band.
 
+The full format description is in [docs/SPEC.md](docs/SPEC.md).
+
 ## Limitations
 
 - The opacity band of ECW v3 RGBA files is decoded but not written to the

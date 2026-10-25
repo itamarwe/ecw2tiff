@@ -1,4 +1,4 @@
-//! Window planning (format spec section 7) and output pixel conversion (section 8).
+//! Window planning (docs/SPEC.md section 7) and output pixel conversion (section 8).
 
 use super::header::Layout;
 use super::io::FileHandle;
