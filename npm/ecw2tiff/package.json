@@ -1,7 +1,7 @@
 {
   "name": "ecw2tiff",
-  "version": "0.1.1",
-  "description": "Convert ECW imagery (v2/v3) to tiled BigTIFF. From-scratch decoder, no ECW SDK or GDAL.",
+  "version": "0.2.0",
+  "description": "Convert ECW imagery (v1/v2/v3) to tiled BigTIFF. Clean-room decoder, no ECW SDK or GDAL.",
   "keywords": ["ecw", "tiff", "bigtiff", "geotiff", "gis", "wavelet", "converter"],
   "license": "MIT",
   "repository": "github:itamarwe/ecw2tiff",

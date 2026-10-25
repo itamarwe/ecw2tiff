@@ -1,8 +1,8 @@
 [package]
 name = "ecw2tiff"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
-description = "From-scratch ECW (v2/v3) decoder and BigTIFF converter"
+description = "Clean-room ECW (v1/v2/v3) decoder and BigTIFF converter"
 license = "MIT"
 
 # cdylib for the Python extension module; rlib so the CLI binary and tests

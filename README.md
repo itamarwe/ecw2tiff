@@ -1,9 +1,8 @@
 # ecw2tiff
 
-A from-scratch ECW decoder in Rust that converts ECW imagery (v2 and v3) to
+A clean-room ECW decoder in Rust that converts ECW imagery (v1, v2 and v3) to
 tiled BigTIFF with JPEG or Deflate compression. No ECW SDK, GDAL, or other
-imaging libraries are used for decoding — the wavelet codec is implemented
-directly from the on-disk format.
+imaging libraries are used for decoding. See [PROVENANCE.md](PROVENANCE.md).
 
 ## Install
 
@@ -81,6 +80,12 @@ Peak memory is about `image_width * tile * 3 * threads` bytes (~4 GB for
 a 276k-pixel-wide mosaic on 8 cores); reduce `--threads` or `--tile` on
 memory-constrained machines.
 
+## Testing
+
+`cargo test` decodes the synthetic fixtures in `tests/data` and compares the
+output against recorded SHA-256 digests, checks that strip-parallel and
+concurrent decodes match a full decode, and feeds in corrupted files.
+
 ## Python binding
 
 For servers that decode many tiles from the same file (e.g. a map tile
@@ -125,42 +130,37 @@ the CLI and re-encoding with GDAL per tile.
 
 ## How it works
 
-ECW is a wavelet codec: a multi-resolution QMF pyramid where each level
-stores LH/HL/HH sidebands (plus LL at the smallest level) as quantized
-int16 coefficients, in 64x64 (v2) or 128x128 (v3) blocks, each sideband
-entropy-coded independently as one of:
+ECW is a wavelet codec. An image is stored as a pyramid of stages, coarsest
+first; each stage holds three quantized 16-bit detail planes per band (the
+coarsest also holds a base plane), cut into tiles. Each plane within a tile
+is entropy-coded independently with one of six encodings: raw, empty,
+zero-run words, a prefix code, or an adaptive arithmetic code over bytes or
+over byte deltas. Reconstructing a stage combines its base and detail planes
+into a grid twice the size, which becomes the next stage's base.
 
-| id | encoding |
-|----|----------|
-| 1  | raw int16 |
-| 2  | Huffman (serialized tree + LSB-first bitstream, zero-run symbols) |
-| 3  | range coder, 257-symbol quasistatic model, 2 symbols per coefficient |
-| 4  | range coder over 8-bit deltas |
-| 5  | all zeros |
-| 6  | 16-bit zero-run RLE |
+The decoder streams: it produces output rows on demand, computes only the
+columns the requested window and scale actually sample, and keeps two input
+rows per stage in memory. A reader can start at any output row, touching only
+the tile rows that row depends on, which is what makes strip-parallel
+conversion and cheap map-tile requests possible. YCbCr images are converted
+to RGB with the JPEG coefficients.
 
-Reconstruction runs line-by-line with two-line ring buffers per level: an
-output line of level L combines two sideband lines of level L with a 1-2-1
-interpolation filter whose taps depend on output x/y parity; the LL input
-of level L is produced recursively by level L-1. Color is stored as
-JPEG-style YCbCr ("YUV" in ECW terms); RGB = Y + 1.402 V, etc.
+ECW v3 wraps the same codestream in ISO-BMFF-style boxes (`ecwh`/`ihdr`
+header, `gtif` embedded GeoTIFF tags, `ecwc` codestream) and can carry a
+fourth, opacity band.
 
-File-format quirks worth knowing (v2): header integers are big-endian
-while doubles, the block table, and all block payloads are little-endian;
-the per-level block offset table is itself entropy-coded and ends with a
-sentinel entry.
+The full format description is in [docs/SPEC.md](docs/SPEC.md).
 
-ECW v3 wraps essentially the same codestream in ISO-BMFF-style boxes
-(`ecwh`/`ihdr` header, `gtif` embedded GeoTIFF tags, `ecwc` codestream),
-adds an opacity band (RGB+alpha as 4-band YUV+A), and replaces the block
-table with raw `(u64 offset, u32 length)` entries where zero length means
-an empty block. The `ihdr` box stores image height before width. The
-opacity band is currently decoded but not written to the TIFF.
+## Limitations
 
-Format reference: the ECW v2 structure follows the publicly released
-libecwj2-3.3 sources (Earth Resource Mapping, 2006); the v3 container was
-reverse-engineered from real files. All code here is an independent
-implementation.
+- The opacity band of ECW v3 RGBA files is decoded but not written to the
+  output.
+- ECW v3 files whose block table is not stored raw are rejected as unsupported.
+- EPSG codes for v2 files are derived only from `GEODETIC` / `NUTM*` /
+  `SUTM*` projection names with the `WGS84` datum.
+- No JPEG 2000, and no ECWP streaming.
+- The decoder contains no `unsafe` code and is tested against truncated and
+  randomly corrupted files, but it has not been externally fuzzed or audited.
 
 ## Releasing
 

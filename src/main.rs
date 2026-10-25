@@ -1,5 +1,4 @@
-use ecw2tiff::header::EcwFile;
-use ecw2tiff::idwt::Region;
+use ecw2tiff::codec::{ColorModel, EcwImage, Window};
 use ecw2tiff::tiff::{self, Codec, GeoInfo, TiffWriter};
 use std::collections::BTreeMap;
 use std::io::{BufWriter, Write};
@@ -10,7 +9,7 @@ use std::sync::{mpsc, Mutex};
 
 fn usage() -> ! {
     eprintln!(
-        "ecw2tiff - convert ECW imagery to tiled BigTIFF (from-scratch decoder)
+        "ecw2tiff - convert ECW imagery to tiled BigTIFF (clean-room decoder)
 
 USAGE:
     ecw2tiff [OPTIONS] <input.ecw> <output.tif>
@@ -123,33 +122,40 @@ fn parse_args() -> Opts {
     o
 }
 
-fn print_info(ecw: &EcwFile) {
-    let h = &ecw.header;
-    println!("ECW version:      {}", h.version);
-    println!("Size:             {} x {}", h.x_size, h.y_size);
-    println!("Bands:            {}", h.nr_bands);
-    println!("Format:           {:?}", h.compress_format);
-    println!("Levels:           {}", h.num_levels);
-    println!("Block size:       {} x {}", h.x_block_size, h.y_block_size);
-    println!("Target ratio:     {}:1", h.compression_rate);
+fn print_info(ecw: &EcwImage) {
+    let h = ecw.info();
+    let format = match h.color_model {
+        ColorModel::Unspecified => "None",
+        ColorModel::Greyscale => "Grey",
+        ColorModel::YCbCr => "Yuv",
+        ColorModel::Multiband => "Multi",
+        ColorModel::Rgb => "Rgb",
+    };
+    println!("ECW version:      {}", h.format_version);
+    println!("Size:             {} x {}", h.width, h.height);
+    println!("Bands:            {}", h.bands);
+    println!("Format:           {format}");
+    println!("Levels:           {}", h.stages);
+    println!("Block size:       {} x {}", h.tile_width, h.tile_height);
+    println!("Target ratio:     {}:1", h.target_ratio);
     println!(
         "Cell size:        {} x {} (units {})",
-        h.cell_inc_x, h.cell_inc_y, h.cell_units
+        h.cell_size_x, h.cell_size_y, h.cell_unit_code
     );
     println!("Origin:           {}, {}", h.origin_x, h.origin_y);
     println!("Datum:            {}", h.datum);
     println!("Projection:       {}", h.projection);
-    for l in &ecw.levels {
+    for (i, l) in ecw.stages().iter().enumerate() {
         println!(
             "  level {:2}: {:7} x {:7}  blocks {:5} x {:5}  binsizes {:?}",
-            l.level, l.x_size, l.y_size, l.nr_x_blocks, l.nr_y_blocks, l.bin_sizes
+            i, l.width, l.height, l.tiles_x, l.tiles_y, l.quant_steps
         );
     }
 }
 
 fn main() {
     let opts = parse_args();
-    let ecw = match EcwFile::open(&opts.input) {
+    let ecw = match EcwImage::open(&opts.input) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("error: cannot open {}: {e}", opts.input.display());
@@ -161,16 +167,20 @@ fn main() {
         return;
     }
 
-    let h = &ecw.header;
-    let (rx, ry, rw, rh) = opts.region.unwrap_or((0, 0, h.x_size, h.y_size));
-    if rx + rw > h.x_size || ry + rh > h.y_size || rw == 0 || rh == 0 {
+    let h = ecw.info();
+    let (rx, ry, rw, rh) = opts.region.unwrap_or((0, 0, h.width, h.height));
+    if rx.checked_add(rw).is_none_or(|e| e > h.width)
+        || ry.checked_add(rh).is_none_or(|e| e > h.height)
+        || rw == 0
+        || rh == 0
+    {
         eprintln!("error: region out of bounds");
         exit(2);
     }
     let number_x = rw.div_ceil(opts.scale);
     let number_y = rh.div_ceil(opts.scale);
 
-    let ch = h.output_channels();
+    let ch = h.channels();
     // Map common ER Mapper projection/datum names to EPSG codes.
     let epsg_from_names: Option<u16> = if h.datum == "WGS84" {
         if h.projection == "GEODETIC" {
@@ -193,12 +203,12 @@ fn main() {
     };
     let epsg = h.epsg.or(epsg_from_names);
     let geo = Some(GeoInfo {
-        cell_inc_x: h.cell_inc_x * (rw as f64 / number_x as f64),
-        cell_inc_y: h.cell_inc_y * (rh as f64 / number_y as f64),
-        origin_x: h.origin_x + rx as f64 * h.cell_inc_x,
-        origin_y: h.origin_y + ry as f64 * h.cell_inc_y,
+        cell_inc_x: h.cell_size_x * (rw as f64 / number_x as f64),
+        cell_inc_y: h.cell_size_y * (rh as f64 / number_y as f64),
+        origin_x: h.origin_x + rx as f64 * h.cell_size_x,
+        origin_y: h.origin_y + ry as f64 * h.cell_size_y,
         citation: format!("{} / {}", h.projection, h.datum),
-        is_degrees: h.cell_units == 2,
+        is_degrees: h.cell_unit_code == 2,
         epsg,
     });
 
@@ -226,8 +236,8 @@ fn main() {
 
     // Strip-parallel decode: the output is split into contiguous runs of
     // tile rows, handed out dynamically to decoder threads. Each thread
-    // primes its own Region at the strip start (block reads use positioned
-    // I/O, so the EcwFile is shared), decodes scanlines, and compresses each
+    // primes its own row reader at the strip start (tile reads use positioned
+    // I/O, so the EcwImage is shared), decodes scanlines, and compresses each
     // completed tile row; the main thread writes rows to the file in order,
     // overlapping decode, compression and I/O.
     let tile = opts.tile;
@@ -264,20 +274,18 @@ fn main() {
                     let tr1 = (u + 1) * tiles_y / n_units;
                     let row0 = (tr0 * tile) as u32;
                     let row1 = ((tr1 * tile).min(number_y as usize)) as u32;
-                    let mut region = match Region::start_rows(
-                        ecw_ref,
-                        rx,
-                        ry,
-                        rx + rw - 1,
-                        ry + rh - 1,
-                        number_x,
-                        number_y,
-                        row0,
-                        row1 - row0,
-                    ) {
+                    let window = Window {
+                        x0: rx,
+                        y0: ry,
+                        x1: rx + rw - 1,
+                        y1: ry + rh - 1,
+                        out_width: number_x,
+                        out_height: number_y,
+                    };
+                    let mut region = match ecw_ref.rows(window, row0, row1 - row0) {
                         Ok(r) => r,
                         Err(e) => {
-                            decode_err.lock().unwrap().get_or_insert(e);
+                            decode_err.lock().unwrap().get_or_insert(e.to_string());
                             return;
                         }
                     };
@@ -285,7 +293,7 @@ fn main() {
                         let rows = tile.min(number_y as usize - tr * tile);
                         for r in 0..rows {
                             let line = &mut row_buf[r * row_bytes..(r + 1) * row_bytes];
-                            if let Err(e) = region.read_scanline(ecw_ref, line) {
+                            if let Err(e) = region.read_row(line) {
                                 let msg = format!("row {}: {e}", tr * tile + r);
                                 decode_err.lock().unwrap().get_or_insert(msg);
                                 return;
