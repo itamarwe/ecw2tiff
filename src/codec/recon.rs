@@ -601,9 +601,8 @@ fn interleave(ev: &[f32], od: &[f32], parity: usize, out: &mut [f32]) {
     }
     let half = out.len() / 2;
     let (paired, tail) = out.split_at_mut(2 * half);
-    for ((p, &e), &o) in paired.chunks_exact_mut(2).zip(ev).zip(od) {
-        p[0] = e;
-        p[1] = o;
+    for ((p, &e), &o) in paired.as_chunks_mut::<2>().0.iter_mut().zip(ev).zip(od) {
+        *p = [e, o];
     }
     if let (Some(t), Some(&e)) = (tail.first_mut(), ev.get(half)) {
         *t = e;

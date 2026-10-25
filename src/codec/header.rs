@@ -123,7 +123,12 @@ fn read_stage_records(
         if usize::from(rec[0]) != s {
             return Err(Error::malformed("stage record has the wrong index"));
         }
-        let quant_steps = rec[9..].chunks_exact(4).map(|q| be32(q, 0)).collect();
+        let quant_steps = rec[9..]
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .map(|q| u32::from_be_bytes(*q))
+            .collect();
         stages.push(StageInfo {
             width: be32(rec, 1),
             height: be32(rec, 5),
@@ -366,7 +371,7 @@ fn parse_gtif(file: &FileHandle, start: u64, end: u64) -> Result<GeoTags> {
             }
             34735 => {
                 let b = file.read_vec(body, len)?;
-                for grp in b.chunks_exact(8).skip(1) {
+                for grp in b.as_chunks::<8>().0.iter().skip(1) {
                     let v = |i: usize| u16::from_le_bytes([grp[2 * i], grp[2 * i + 1]]);
                     let (key, loc, value) = (v(0), v(1), v(3));
                     if key == 1024 {
@@ -488,7 +493,7 @@ fn parse_v3(file: &FileHandle) -> Result<Layout> {
     while done < table_len {
         let n = (table_len - done).min(12 * 4096);
         let chunk = file.read_vec(table_start + done, n)?;
-        for e in chunk.chunks_exact(12) {
+        for e in chunk.as_chunks::<12>().0 {
             let off = le_u64(e, 0);
             let len = le_u32(e, 8);
             if len != 0 && off.checked_add(u64::from(len)).is_none_or(|x| x > flen) {

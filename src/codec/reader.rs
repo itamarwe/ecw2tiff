@@ -189,14 +189,21 @@ impl<'a> RowReader<'a> {
         match (self.color, self.contiguous) {
             (ColorModel::YCbCr, Some(s)) => {
                 let (yb, cb, cr) = (&band(0)[s..s + n], &band(1)[s..s + n], &band(2)[s..s + n]);
-                for (((px, &yv), &u), &v) in out.chunks_exact_mut(3).zip(yb).zip(cb).zip(cr) {
-                    px.copy_from_slice(&ycc_to_rgb(yv, u, v));
+                for (((px, &yv), &u), &v) in out
+                    .as_chunks_mut::<3>()
+                    .0
+                    .iter_mut()
+                    .zip(yb)
+                    .zip(cb)
+                    .zip(cr)
+                {
+                    *px = ycc_to_rgb(yv, u, v);
                 }
             }
             (ColorModel::YCbCr, None) => {
                 let (yb, cb, cr) = (band(0), band(1), band(2));
-                for (px, &p) in out.chunks_exact_mut(3).zip(&self.col_pos) {
-                    px.copy_from_slice(&ycc_to_rgb(yb[p], cb[p], cr[p]));
+                for (px, &p) in out.as_chunks_mut::<3>().0.iter_mut().zip(&self.col_pos) {
+                    *px = ycc_to_rgb(yb[p], cb[p], cr[p]);
                 }
             }
             (_, Some(s)) if self.channels == 1 => {

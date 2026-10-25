@@ -116,7 +116,7 @@ impl<'f> Stream<'f> {
     }
 }
 
-/// Expand coefficient words (format spec 5.2) into `out`. `pending` carries the
+/// Expand coefficient words (spec 5.2) into `out`. `pending` carries the
 /// unfinished part of a zero run between calls.
 #[inline]
 fn expand_words(
@@ -274,7 +274,7 @@ const TOTAL: u32 = 4096;
 const SYMBOLS: usize = 257;
 const END_SYMBOL: u32 = 256;
 
-/// The adaptive frequency model of format spec 5.7.2.
+/// The adaptive frequency model of spec 5.7.2.
 struct Model {
     /// Cumulative table `C[0..=257]`.
     cum: [u32; SYMBOLS + 1],
@@ -359,7 +359,7 @@ impl Model {
     }
 }
 
-/// Arithmetic decoder (format spec 5.7.1) together with its model.
+/// Arithmetic decoder (spec 5.7.1) together with its model.
 pub(crate) struct ArithStream<'f> {
     src: ByteSource<'f>,
     coder: Coder,
