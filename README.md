@@ -49,8 +49,12 @@ cargo build --release --features fast-deflate
 ```
 
 That switches the backend to zlib-ng, whose NEON match-finder and
-checksums cut deflate CPU by about 27% and raise end-to-end throughput by
-roughly 22% (measured on an M1, 67 Mpixel region: 44 -> 54 Mpixel/s).
+checksums cut deflate CPU by about a quarter and raise end-to-end
+throughput by about a third (measured on an M1 over 6 interleaved runs of
+a 67 Mpixel region: median 42 -> 56 Mpixel/s, CPU 8.3s -> 5.9s). Run
+times are also noticeably more consistent, since there is less CPU
+pressure behind the writer.
+
 The trade is output about 4-5% larger at the same level, and a build that
 needs a C toolchain and cmake, which is why it is opt-in. Decoded pixels
 are identical either way.
