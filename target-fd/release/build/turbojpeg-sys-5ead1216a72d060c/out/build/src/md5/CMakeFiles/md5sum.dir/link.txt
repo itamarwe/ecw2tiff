@@ -1,0 +1,1 @@
+/usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/md5sum.dir/md5sum.c.o CMakeFiles/md5sum.dir/md5.c.o CMakeFiles/md5sum.dir/md5hl.c.o -o ../../test/md5sum

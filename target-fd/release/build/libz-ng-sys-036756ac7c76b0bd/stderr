@@ -1,0 +1,14 @@
+running: cd "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/release/build/libz-ng-sys-036756ac7c76b0bd/out/build" && CMAKE_PREFIX_PATH="" LC_ALL="C" "cmake" "/Users/itamarwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.30/src/zlib-ng" "-B" "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/release/build/libz-ng-sys-036756ac7c76b0bd/out/build" "-DCMAKE_OSX_ARCHITECTURES=arm64" "-DBUILD_SHARED_LIBS=OFF" "-DZLIB_COMPAT=OFF" "-DZLIB_ENABLE_TESTS=OFF" "-DWITH_GZFILEOP=ON" "-DCMAKE_INSTALL_LIBDIR=lib" "-DCMAKE_INSTALL_PREFIX=/Users/itamarwe/Documents/code/ecw2tiff/target-fd/release/build/libz-ng-sys-036756ac7c76b0bd/out" "-DCMAKE_C_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w" "-DCMAKE_C_COMPILER=/usr/bin/cc" "-DCMAKE_CXX_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w" "-DCMAKE_CXX_COMPILER=/usr/bin/c++" "-DCMAKE_ASM_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w" "-DCMAKE_ASM_COMPILER=/usr/bin/cc" "-DCMAKE_BUILD_TYPE=Release"
+CMake Deprecation Warning at CMakeLists.txt:54 (message):
+  ZLIB_ENABLE_TESTS is deprecated.  Please use BUILD_TESTING instead.
+
+
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    CMAKE_ASM_COMPILER
+    CMAKE_ASM_FLAGS
+    CMAKE_CXX_FLAGS
+
+
+running: cd "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/release/build/libz-ng-sys-036756ac7c76b0bd/out/build" && LC_ALL="C" "cmake" "--build" "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/release/build/libz-ng-sys-036756ac7c76b0bd/out/build" "--target" "install" "--config" "Release" "--parallel" "8"

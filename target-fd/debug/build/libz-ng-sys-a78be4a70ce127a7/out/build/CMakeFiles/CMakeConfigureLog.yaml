@@ -1,0 +1,1584 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:37 (project)"
+    message: |
+      The system is: Darwin - 25.5.0 - arm64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:37 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: /usr/bin/cc 
+      Build flags: -ffunction-sections;-fdata-sections;-fPIC;--target=arm64-apple-macosx;-mmacosx-version-min=26.5;-w
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+      
+      The C compiler identification is AppleClang, found in:
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/3.31.6/CompilerIdC/a.out
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:74 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-npBnmo"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-npBnmo"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-npBnmo'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_7d873/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_7d873.dir/build.make CMakeFiles/cmTC_7d873.dir/build
+        Building C object CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk   -v -Wl,-v -MD -MT CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o -MF CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o.d -o CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o -c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c
+        Apple clang version 21.0.0 (clang-2100.1.1.101)
+        Target: arm64-apple-macosx
+        Thread model: posix
+        InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+         "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1 -triple arm64-apple-macosx26.5.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -fno-sized-deallocation -target-sdk-version=26.5 -fvisibility-inlines-hidden-static-local-var -fno-modulemap-allow-subdirectory-search -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -enable-tlsdesc -target-cpu apple-m1 -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +ccpp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +flagm -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-npBnmo -target-linker-version 1267 -v -ffunction-sections -fdata-sections -fcoverage-compilation-dir=/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-npBnmo -resource-dir /Library/Developer/CommandLineTools/usr/lib/clang/21 -dependency-file CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/local/include -internal-isystem /Library/Developer/CommandLineTools/usr/lib/clang/21/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include -internal-externc-isystem /Library/Developer/CommandLineTools/usr/include -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/Frameworks -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/SubFrameworks -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/Library/Frameworks -Wno-elaborated-enum-base -w -std=c11 -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -Wno-error=allocator-wrappers -fdwarf2-cfi-asm -o CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o -x c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c
+        clang -cc1 version 21.0.0 (clang-2100.1.1.101) default target arm64-apple-darwin25.5.0
+        ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/local/include"
+        ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/Library/Frameworks"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /Library/Developer/CommandLineTools/usr/lib/clang/21/include
+         /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include
+         /Library/Developer/CommandLineTools/usr/include
+         /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/Frameworks (framework directory)
+         /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/SubFrameworks (framework directory)
+        End of search list.
+        Linking C executable cmTC_7d873
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7d873.dir/link.txt --verbose=1
+        Apple clang version 21.0.0 (clang-2100.1.1.101)
+        Target: arm64-apple-macosx
+        Thread model: posix
+        InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+         "/Library/Developer/CommandLineTools/usr/bin/ld" -demangle -lto_library /Library/Developer/CommandLineTools/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 26.5.0 26.5 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -w -mllvm -enable-linkonceodr-outlining -o cmTC_7d873 -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o -lSystem /Library/Developer/CommandLineTools/usr/lib/clang/21/lib/darwin/libclang_rt.osx.a
+        @(#)PROGRAM:ld PROJECT:ld-1267
+        BUILD 18:30:29 Apr 22 2026
+        configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em armv8m.main armv8.1m.main
+        will use ld-classic for: armv6 armv7 armv7s i386 armv6m armv7k armv7m armv7em
+        LTO support using: LLVM version 21.0.0 (static support for 30, runtime is 30)
+        TAPI support using: Apple TAPI version 21.0.0 (tapi-2100.0.2.6)
+        Library search paths:
+        	/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib
+        	/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib/swift
+        Framework search paths:
+        	/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/Frameworks
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o -o cmTC_7d873
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:113 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (project)"
+    message: |
+      Effective list of requested architectures (possibly empty)  : "arm64"
+      Effective list of architectures found in the ABI info binary: "arm64"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:182 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (project)"
+    message: |
+      Parsed C implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/Library/Developer/CommandLineTools/usr/lib/clang/21/include]
+          add: [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include]
+          add: [/Library/Developer/CommandLineTools/usr/include]
+        end of search list found
+        collapse include dir [/Library/Developer/CommandLineTools/usr/lib/clang/21/include] ==> [/Library/Developer/CommandLineTools/usr/lib/clang/21/include]
+        collapse include dir [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include]
+        collapse include dir [/Library/Developer/CommandLineTools/usr/include] ==> [/Library/Developer/CommandLineTools/usr/include]
+        implicit include dirs: [/Library/Developer/CommandLineTools/usr/lib/clang/21/include;/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include;/Library/Developer/CommandLineTools/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:218 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?))("|,| |$)]
+        ignore line: [Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-npBnmo']
+        ignore line: []
+        ignore line: [Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_7d873/fast]
+        ignore line: [/Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_7d873.dir/build.make CMakeFiles/cmTC_7d873.dir/build]
+        ignore line: [Building C object CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o]
+        ignore line: [/usr/bin/cc   -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk   -v -Wl -v -MD -MT CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o -MF CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o.d -o CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o -c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c]
+        ignore line: [Apple clang version 21.0.0 (clang-2100.1.1.101)]
+        ignore line: [Target: arm64-apple-macosx]
+        ignore line: [Thread model: posix]
+        ignore line: [InstalledDir: /Library/Developer/CommandLineTools/usr/bin]
+        ignore line: [ "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1 -triple arm64-apple-macosx26.5.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -fno-sized-deallocation -target-sdk-version=26.5 -fvisibility-inlines-hidden-static-local-var -fno-modulemap-allow-subdirectory-search -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -enable-tlsdesc -target-cpu apple-m1 -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +ccpp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +flagm -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-npBnmo -target-linker-version 1267 -v -ffunction-sections -fdata-sections -fcoverage-compilation-dir=/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-npBnmo -resource-dir /Library/Developer/CommandLineTools/usr/lib/clang/21 -dependency-file CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/local/include -internal-isystem /Library/Developer/CommandLineTools/usr/lib/clang/21/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include -internal-externc-isystem /Library/Developer/CommandLineTools/usr/include -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/Frameworks -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/SubFrameworks -internal-iframework /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/Library/Frameworks -Wno-elaborated-enum-base -w -std=c11 -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -Wno-error=allocator-wrappers -fdwarf2-cfi-asm -o CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o -x c /opt/homebrew/share/cmake/Modules/CMakeCCompilerABI.c]
+        ignore line: [clang -cc1 version 21.0.0 (clang-2100.1.1.101) default target arm64-apple-darwin25.5.0]
+        ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/local/include"]
+        ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/Library/Frameworks"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /Library/Developer/CommandLineTools/usr/lib/clang/21/include]
+        ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include]
+        ignore line: [ /Library/Developer/CommandLineTools/usr/include]
+        ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/Frameworks (framework directory)]
+        ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/SubFrameworks (framework directory)]
+        ignore line: [End of search list.]
+        ignore line: [Linking C executable cmTC_7d873]
+        ignore line: [/opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7d873.dir/link.txt --verbose=1]
+        ignore line: [Apple clang version 21.0.0 (clang-2100.1.1.101)]
+        ignore line: [Target: arm64-apple-macosx]
+        ignore line: [Thread model: posix]
+        ignore line: [InstalledDir: /Library/Developer/CommandLineTools/usr/bin]
+        link line: [ "/Library/Developer/CommandLineTools/usr/bin/ld" -demangle -lto_library /Library/Developer/CommandLineTools/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 26.5.0 26.5 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -w -mllvm -enable-linkonceodr-outlining -o cmTC_7d873 -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o -lSystem /Library/Developer/CommandLineTools/usr/lib/clang/21/lib/darwin/libclang_rt.osx.a]
+          arg [/Library/Developer/CommandLineTools/usr/bin/ld] ==> ignore
+          arg [-demangle] ==> ignore
+          arg [-lto_library] ==> ignore, skip following value
+          arg [/Library/Developer/CommandLineTools/usr/lib/libLTO.dylib] ==> skip value of -lto_library
+          arg [-dynamic] ==> ignore
+          arg [-arch] ==> ignore
+          arg [arm64] ==> ignore
+          arg [-platform_version] ==> ignore
+          arg [macos] ==> ignore
+          arg [26.5.0] ==> ignore
+          arg [26.5] ==> ignore
+          arg [-syslibroot] ==> ignore
+          arg [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk] ==> ignore
+          arg [-w] ==> ignore
+          arg [-mllvm] ==> ignore
+          arg [-enable-linkonceodr-outlining] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_7d873] ==> ignore
+          arg [-search_paths_first] ==> ignore
+          arg [-headerpad_max_install_names] ==> ignore
+          arg [-v] ==> ignore
+          arg [CMakeFiles/cmTC_7d873.dir/CMakeCCompilerABI.c.o] ==> ignore
+          arg [-lSystem] ==> lib [System]
+          arg [/Library/Developer/CommandLineTools/usr/lib/clang/21/lib/darwin/libclang_rt.osx.a] ==> lib [/Library/Developer/CommandLineTools/usr/lib/clang/21/lib/darwin/libclang_rt.osx.a]
+        linker tool for 'C': /Library/Developer/CommandLineTools/usr/bin/ld
+        Library search paths: [;/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib;/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib/swift]
+        Framework search paths: [;/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/Frameworks]
+        remove lib [System]
+        remove lib [/Library/Developer/CommandLineTools/usr/lib/clang/21/lib/darwin/libclang_rt.osx.a]
+        collapse library dir [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib]
+        collapse library dir [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib/swift] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib/swift]
+        collapse framework dir [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/Frameworks] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/Frameworks]
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib;/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/lib/swift]
+        implicit fwks: [/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/System/Library/Frameworks]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CMakeDetermineLinkerId.cmake:40 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:255 (cmake_determine_linker_id)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (project)"
+    message: |
+      Running the C compiler's linker: "/Library/Developer/CommandLineTools/usr/bin/ld" "-v"
+      @(#)PROGRAM:ld PROJECT:ld-1267
+      BUILD 18:30:29 Apr 22 2026
+      configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em armv8m.main armv8.1m.main
+      will use ld-classic for: armv6 armv7 armv7s i386 armv6m armv7k armv7m armv7em
+      LTO support using: LLVM version 21.0.0 (static support for 30, runtime is 30)
+      TAPI support using: Apple TAPI version 21.0.0 (tapi-2100.0.2.6)
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:250 (check_c_source_compiles)"
+    checks:
+      - "Performing Test FNO_LTO_AVAILABLE"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wlJiHj"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wlJiHj"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "FNO_LTO_AVAILABLE"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wlJiHj'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_82372/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_82372.dir/build.make CMakeFiles/cmTC_82372.dir/build
+        Building C object CMakeFiles/cmTC_82372.dir/src.c.o
+        /usr/bin/cc -DFNO_LTO_AVAILABLE  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -fno-lto -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_82372.dir/src.c.o -MF CMakeFiles/cmTC_82372.dir/src.c.o.d -o CMakeFiles/cmTC_82372.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wlJiHj/src.c
+        Linking C executable cmTC_82372
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_82372.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -fno-lto -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_82372.dir/src.c.o -o cmTC_82372
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "CMakeLists.txt:261 (check_include_file)"
+    checks:
+      - "Looking for features.h"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-sgxtMT"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-sgxtMT"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_FEATURES_H"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-sgxtMT'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_70553/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_70553.dir/build.make CMakeFiles/cmTC_70553.dir/build
+        Building C object CMakeFiles/cmTC_70553.dir/CheckIncludeFile.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_70553.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_70553.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_70553.dir/CheckIncludeFile.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-sgxtMT/CheckIncludeFile.c
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-sgxtMT/CheckIncludeFile.c:1:10: fatal error: 'features.h' file not found
+            1 | #include <features.h>
+              |          ^~~~~~~~~~~~
+        1 error generated.
+        make[1]: *** [CMakeFiles/cmTC_70553.dir/CheckIncludeFile.c.o] Error 1
+        make: *** [cmTC_70553/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCCompilerFlag.cmake:56 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:419 (check_c_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_W_ERROR_UNGUARDED_AVAILABILITY"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-CZJIsO"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-CZJIsO"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_W_ERROR_UNGUARDED_AVAILABILITY"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-CZJIsO'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_faf67/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_faf67.dir/build.make CMakeFiles/cmTC_faf67.dir/build
+        Building C object CMakeFiles/cmTC_faf67.dir/src.c.o
+        /usr/bin/cc -DHAVE_W_ERROR_UNGUARDED_AVAILABILITY  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk   -Werror=unguarded-availability -MD -MT CMakeFiles/cmTC_faf67.dir/src.c.o -MF CMakeFiles/cmTC_faf67.dir/src.c.o.d -o CMakeFiles/cmTC_faf67.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-CZJIsO/src.c
+        Linking C executable cmTC_faf67
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_faf67.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_faf67.dir/src.c.o -o cmTC_faf67
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCCompilerFlag.cmake:56 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:423 (check_c_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_W_ERROR_UNGUARDED_AVAILABILITY_NEW"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-aj8dqk"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-aj8dqk"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_W_ERROR_UNGUARDED_AVAILABILITY_NEW"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-aj8dqk'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_2d045/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_2d045.dir/build.make CMakeFiles/cmTC_2d045.dir/build
+        Building C object CMakeFiles/cmTC_2d045.dir/src.c.o
+        /usr/bin/cc -DHAVE_W_ERROR_UNGUARDED_AVAILABILITY_NEW  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk   -Werror=unguarded-availability-new -MD -MT CMakeFiles/cmTC_2d045.dir/src.c.o -MF CMakeFiles/cmTC_2d045.dir/src.c.o.d -o CMakeFiles/cmTC_2d045.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-aj8dqk/src.c
+        Linking C executable cmTC_2d045
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2d045.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_2d045.dir/src.c.o -o cmTC_2d045
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCCompilerFlag.cmake:56 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:427 (check_c_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_W_ERROR_UNUSED_COMMAND_LINE_ARGUMENT"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-b10z1h"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-b10z1h"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_W_ERROR_UNUSED_COMMAND_LINE_ARGUMENT"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-b10z1h'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_c816e/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_c816e.dir/build.make CMakeFiles/cmTC_c816e.dir/build
+        Building C object CMakeFiles/cmTC_c816e.dir/src.c.o
+        /usr/bin/cc -DHAVE_W_ERROR_UNUSED_COMMAND_LINE_ARGUMENT  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk   -Werror=unused-command-line-argument -MD -MT CMakeFiles/cmTC_c816e.dir/src.c.o -MF CMakeFiles/cmTC_c816e.dir/src.c.o.d -o CMakeFiles/cmTC_c816e.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-b10z1h/src.c
+        Linking C executable cmTC_c816e
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c816e.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_c816e.dir/src.c.o -o cmTC_c816e
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "CMakeLists.txt:436 (check_include_file)"
+    checks:
+      - "Looking for arm_acle.h"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-oDnZBU"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-oDnZBU"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_ARM_ACLE_H"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-oDnZBU'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_84dca/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_84dca.dir/build.make CMakeFiles/cmTC_84dca.dir/build
+        Building C object CMakeFiles/cmTC_84dca.dir/CheckIncludeFile.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_84dca.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_84dca.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_84dca.dir/CheckIncludeFile.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-oDnZBU/CheckIncludeFile.c
+        Linking C executable cmTC_84dca
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_84dca.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_84dca.dir/CheckIncludeFile.c.o -o cmTC_84dca
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "CMakeLists.txt:440 (check_include_file)"
+    checks:
+      - "Looking for sys/auxv.h"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ZmqFAa"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ZmqFAa"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_SYS_AUXV_H"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ZmqFAa'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_2da5d/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_2da5d.dir/build.make CMakeFiles/cmTC_2da5d.dir/build
+        Building C object CMakeFiles/cmTC_2da5d.dir/CheckIncludeFile.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_2da5d.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_2da5d.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_2da5d.dir/CheckIncludeFile.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ZmqFAa/CheckIncludeFile.c
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ZmqFAa/CheckIncludeFile.c:1:10: fatal error: 'sys/auxv.h' file not found
+            1 | #include <sys/auxv.h>
+              |          ^~~~~~~~~~~~
+        1 error generated.
+        make[1]: *** [CMakeFiles/cmTC_2da5d.dir/CheckIncludeFile.c.o] Error 1
+        make: *** [cmTC_2da5d/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "CMakeLists.txt:444 (check_include_file)"
+    checks:
+      - "Looking for sys/sdt.h"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-3RJAvJ"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-3RJAvJ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_SYS_SDT_H"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-3RJAvJ'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_80f7c/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_80f7c.dir/build.make CMakeFiles/cmTC_80f7c.dir/build
+        Building C object CMakeFiles/cmTC_80f7c.dir/CheckIncludeFile.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_80f7c.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_80f7c.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_80f7c.dir/CheckIncludeFile.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-3RJAvJ/CheckIncludeFile.c
+        Linking C executable cmTC_80f7c
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_80f7c.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_80f7c.dir/CheckIncludeFile.c.o -o cmTC_80f7c
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "CMakeLists.txt:448 (check_include_file)"
+    checks:
+      - "Looking for unistd.h"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ZsB6CY"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ZsB6CY"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_UNISTD_H"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ZsB6CY'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_c04b2/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_c04b2.dir/build.make CMakeFiles/cmTC_c04b2.dir/build
+        Building C object CMakeFiles/cmTC_c04b2.dir/CheckIncludeFile.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_c04b2.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_c04b2.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_c04b2.dir/CheckIncludeFile.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ZsB6CY/CheckIncludeFile.c
+        Linking C executable cmTC_c04b2
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c04b2.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_c04b2.dir/CheckIncludeFile.c.o -o cmTC_c04b2
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "CMakeLists.txt:453 (check_include_file)"
+    checks:
+      - "Looking for linux/auxvec.h"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-HWqYeo"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-HWqYeo"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_LINUX_AUXVEC_H"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-HWqYeo'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_c6f0f/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_c6f0f.dir/build.make CMakeFiles/cmTC_c6f0f.dir/build
+        Building C object CMakeFiles/cmTC_c6f0f.dir/CheckIncludeFile.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_c6f0f.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_c6f0f.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_c6f0f.dir/CheckIncludeFile.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-HWqYeo/CheckIncludeFile.c
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-HWqYeo/CheckIncludeFile.c:1:10: fatal error: 'linux/auxvec.h' file not found
+            1 | #include <linux/auxvec.h>
+              |          ^~~~~~~~~~~~~~~~
+        1 error generated.
+        make[1]: *** [CMakeFiles/cmTC_c6f0f.dir/CheckIncludeFile.c.o] Error 1
+        make: *** [cmTC_c6f0f/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckTypeSize.cmake:262 (check_include_file)"
+      - "CMakeLists.txt:462 (check_type_size)"
+    checks:
+      - "Looking for sys/types.h"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-lqsoyu"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-lqsoyu"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_SYS_TYPES_H"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-lqsoyu'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_2f752/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_2f752.dir/build.make CMakeFiles/cmTC_2f752.dir/build
+        Building C object CMakeFiles/cmTC_2f752.dir/CheckIncludeFile.c.o
+        /usr/bin/cc -D_LARGEFILE64_SOURCE=1 -D__USE_LARGEFILE64  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_2f752.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_2f752.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_2f752.dir/CheckIncludeFile.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-lqsoyu/CheckIncludeFile.c
+        Linking C executable cmTC_2f752
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2f752.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_2f752.dir/CheckIncludeFile.c.o -o cmTC_2f752
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckTypeSize.cmake:263 (check_include_file)"
+      - "CMakeLists.txt:462 (check_type_size)"
+    checks:
+      - "Looking for stdint.h"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ebSpmw"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ebSpmw"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_STDINT_H"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ebSpmw'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_966c3/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_966c3.dir/build.make CMakeFiles/cmTC_966c3.dir/build
+        Building C object CMakeFiles/cmTC_966c3.dir/CheckIncludeFile.c.o
+        /usr/bin/cc -D_LARGEFILE64_SOURCE=1 -D__USE_LARGEFILE64  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_966c3.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_966c3.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_966c3.dir/CheckIncludeFile.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ebSpmw/CheckIncludeFile.c
+        Linking C executable cmTC_966c3
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_966c3.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_966c3.dir/CheckIncludeFile.c.o -o cmTC_966c3
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckTypeSize.cmake:264 (check_include_file)"
+      - "CMakeLists.txt:462 (check_type_size)"
+    checks:
+      - "Looking for stddef.h"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-IPN4ND"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-IPN4ND"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_STDDEF_H"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-IPN4ND'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_da8c9/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_da8c9.dir/build.make CMakeFiles/cmTC_da8c9.dir/build
+        Building C object CMakeFiles/cmTC_da8c9.dir/CheckIncludeFile.c.o
+        /usr/bin/cc -D_LARGEFILE64_SOURCE=1 -D__USE_LARGEFILE64  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_da8c9.dir/CheckIncludeFile.c.o -MF CMakeFiles/cmTC_da8c9.dir/CheckIncludeFile.c.o.d -o CMakeFiles/cmTC_da8c9.dir/CheckIncludeFile.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-IPN4ND/CheckIncludeFile.c
+        Linking C executable cmTC_da8c9
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_da8c9.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_da8c9.dir/CheckIncludeFile.c.o -o cmTC_da8c9
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckTypeSize.cmake:156 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckTypeSize.cmake:283 (__check_type_size_impl)"
+      - "CMakeLists.txt:462 (check_type_size)"
+    checks:
+      - "Check size of off64_t"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_OFF64_T"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_8f4a3/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_8f4a3.dir/build.make CMakeFiles/cmTC_8f4a3.dir/build
+        Building C object CMakeFiles/cmTC_8f4a3.dir/OFF64_T.c.o
+        /usr/bin/cc -D_LARGEFILE64_SOURCE=1 -D__USE_LARGEFILE64  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_8f4a3.dir/OFF64_T.c.o -MF CMakeFiles/cmTC_8f4a3.dir/OFF64_T.c.o.d -o CMakeFiles/cmTC_8f4a3.dir/OFF64_T.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab/OFF64_T.c
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab/OFF64_T.c:29:12: error: use of undeclared identifier 'off64_t'; did you mean 'off_t'?
+           29 |   ('0' + ((SIZE / 10000)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab/OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(off64_t))
+              |                      ^~~~~~~
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include/sys/_types/_off_t.h:31:33: note: 'off_t' declared here
+           31 | typedef __darwin_off_t          off_t;
+              |                                 ^
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab/OFF64_T.c:30:12: error: use of undeclared identifier 'off64_t'; did you mean 'off_t'?
+           30 |   ('0' + ((SIZE / 1000)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab/OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(off64_t))
+              |                      ^~~~~~~
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include/sys/_types/_off_t.h:31:33: note: 'off_t' declared here
+           31 | typedef __darwin_off_t          off_t;
+              |                                 ^
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab/OFF64_T.c:31:12: error: use of undeclared identifier 'off64_t'; did you mean 'off_t'?
+           31 |   ('0' + ((SIZE / 100)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab/OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(off64_t))
+              |                      ^~~~~~~
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include/sys/_types/_off_t.h:31:33: note: 'off_t' declared here
+           31 | typedef __darwin_off_t          off_t;
+              |                                 ^
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab/OFF64_T.c:32:12: error: use of undeclared identifier 'off64_t'; did you mean 'off_t'?
+           32 |   ('0' + ((SIZE / 10)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab/OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(off64_t))
+              |                      ^~~~~~~
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include/sys/_types/_off_t.h:31:33: note: 'off_t' declared here
+           31 | typedef __darwin_off_t          off_t;
+              |                                 ^
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab/OFF64_T.c:33:12: error: use of undeclared identifier 'off64_t'; did you mean 'off_t'?
+           33 |   ('0' +  (SIZE    % 10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-LjIUab/OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(off64_t))
+              |                      ^~~~~~~
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include/sys/_types/_off_t.h:31:33: note: 'off_t' declared here
+           31 | typedef __darwin_off_t          off_t;
+              |                                 ^
+        5 errors generated.
+        make[1]: *** [CMakeFiles/cmTC_8f4a3.dir/OFF64_T.c.o] Error 1
+        make: *** [cmTC_8f4a3/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckTypeSize.cmake:156 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckTypeSize.cmake:283 (__check_type_size_impl)"
+      - "CMakeLists.txt:466 (check_type_size)"
+    checks:
+      - "Check size of _off64_t"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE__OFF64_T"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_4f72a/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_4f72a.dir/build.make CMakeFiles/cmTC_4f72a.dir/build
+        Building C object CMakeFiles/cmTC_4f72a.dir/_OFF64_T.c.o
+        /usr/bin/cc -D_LARGEFILE64_SOURCE=1 -D__USE_LARGEFILE64  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_4f72a.dir/_OFF64_T.c.o -MF CMakeFiles/cmTC_4f72a.dir/_OFF64_T.c.o.d -o CMakeFiles/cmTC_4f72a.dir/_OFF64_T.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T/_OFF64_T.c
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T/_OFF64_T.c:29:12: error: use of undeclared identifier '_off64_t'
+           29 |   ('0' + ((SIZE / 10000)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T/_OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(_off64_t))
+              |                      ^~~~~~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T/_OFF64_T.c:30:12: error: use of undeclared identifier '_off64_t'
+           30 |   ('0' + ((SIZE / 1000)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T/_OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(_off64_t))
+              |                      ^~~~~~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T/_OFF64_T.c:31:12: error: use of undeclared identifier '_off64_t'
+           31 |   ('0' + ((SIZE / 100)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T/_OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(_off64_t))
+              |                      ^~~~~~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T/_OFF64_T.c:32:12: error: use of undeclared identifier '_off64_t'
+           32 |   ('0' + ((SIZE / 10)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T/_OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(_off64_t))
+              |                      ^~~~~~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T/_OFF64_T.c:33:12: error: use of undeclared identifier '_off64_t'
+           33 |   ('0' +  (SIZE    % 10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-MkvN7T/_OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(_off64_t))
+              |                      ^~~~~~~~
+        5 errors generated.
+        make[1]: *** [CMakeFiles/cmTC_4f72a.dir/_OFF64_T.c.o] Error 1
+        make: *** [cmTC_4f72a/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckTypeSize.cmake:156 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckTypeSize.cmake:283 (__check_type_size_impl)"
+      - "CMakeLists.txt:470 (check_type_size)"
+    checks:
+      - "Check size of __off64_t"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE___OFF64_T"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_07675/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_07675.dir/build.make CMakeFiles/cmTC_07675.dir/build
+        Building C object CMakeFiles/cmTC_07675.dir/__OFF64_T.c.o
+        /usr/bin/cc -D_LARGEFILE64_SOURCE=1 -D__USE_LARGEFILE64  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_07675.dir/__OFF64_T.c.o -MF CMakeFiles/cmTC_07675.dir/__OFF64_T.c.o.d -o CMakeFiles/cmTC_07675.dir/__OFF64_T.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U/__OFF64_T.c
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U/__OFF64_T.c:29:12: error: use of undeclared identifier '__off64_t'; did you mean '__int64_t'?
+           29 |   ('0' + ((SIZE / 10000)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U/__OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(__off64_t))
+              |                      ^~~~~~~~~
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include/arm/_types.h:37:33: note: '__int64_t' declared here
+           37 | typedef long long               __int64_t;
+              |                                 ^
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U/__OFF64_T.c:30:12: error: use of undeclared identifier '__off64_t'; did you mean '__int64_t'?
+           30 |   ('0' + ((SIZE / 1000)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U/__OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(__off64_t))
+              |                      ^~~~~~~~~
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include/arm/_types.h:37:33: note: '__int64_t' declared here
+           37 | typedef long long               __int64_t;
+              |                                 ^
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U/__OFF64_T.c:31:12: error: use of undeclared identifier '__off64_t'; did you mean '__int64_t'?
+           31 |   ('0' + ((SIZE / 100)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U/__OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(__off64_t))
+              |                      ^~~~~~~~~
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include/arm/_types.h:37:33: note: '__int64_t' declared here
+           37 | typedef long long               __int64_t;
+              |                                 ^
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U/__OFF64_T.c:32:12: error: use of undeclared identifier '__off64_t'; did you mean '__int64_t'?
+           32 |   ('0' + ((SIZE / 10)%10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U/__OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(__off64_t))
+              |                      ^~~~~~~~~
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include/arm/_types.h:37:33: note: '__int64_t' declared here
+           37 | typedef long long               __int64_t;
+              |                                 ^
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U/__OFF64_T.c:33:12: error: use of undeclared identifier '__off64_t'; did you mean '__int64_t'?
+           33 |   ('0' +  (SIZE    % 10)),
+              |            ^~~~
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-wO0K5U/__OFF64_T.c:27:22: note: expanded from macro 'SIZE'
+           27 | #define SIZE (sizeof(__off64_t))
+              |                      ^~~~~~~~~
+        /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk/usr/include/arm/_types.h:37:33: note: '__int64_t' declared here
+           37 | typedef long long               __int64_t;
+              |                                 ^
+        5 errors generated.
+        make[1]: *** [CMakeFiles/cmTC_07675.dir/__OFF64_T.c.o] Error 1
+        make: *** [cmTC_07675/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckFunctionExists.cmake:93 (try_compile)"
+      - "CMakeLists.txt:479 (check_function_exists)"
+    checks:
+      - "Looking for fseeko"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-hAvBUG"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-hAvBUG"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_FSEEKO"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-hAvBUG'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_44ad7/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_44ad7.dir/build.make CMakeFiles/cmTC_44ad7.dir/build
+        Building C object CMakeFiles/cmTC_44ad7.dir/CheckFunctionExists.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -DCHECK_FUNCTION_EXISTS=fseeko  -Werror=unguarded-availability -Werror=unguarded-availability-new -Werror=unused-command-line-argument -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_44ad7.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_44ad7.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_44ad7.dir/CheckFunctionExists.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-hAvBUG/CheckFunctionExists.c
+        Linking C executable cmTC_44ad7
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_44ad7.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -DCHECK_FUNCTION_EXISTS=fseeko  -Werror=unguarded-availability -Werror=unguarded-availability-new -Werror=unused-command-line-argument -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_44ad7.dir/CheckFunctionExists.c.o -o cmTC_44ad7
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckFunctionExists.cmake:93 (try_compile)"
+      - "CMakeLists.txt:486 (check_function_exists)"
+    checks:
+      - "Looking for strerror"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-DftmDs"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-DftmDs"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_STRERROR"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-DftmDs'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_22547/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_22547.dir/build.make CMakeFiles/cmTC_22547.dir/build
+        Building C object CMakeFiles/cmTC_22547.dir/CheckFunctionExists.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -DCHECK_FUNCTION_EXISTS=strerror  -Werror=unguarded-availability -Werror=unguarded-availability-new -Werror=unused-command-line-argument -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_22547.dir/CheckFunctionExists.c.o -MF CMakeFiles/cmTC_22547.dir/CheckFunctionExists.c.o.d -o CMakeFiles/cmTC_22547.dir/CheckFunctionExists.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-DftmDs/CheckFunctionExists.c
+        Linking C executable cmTC_22547
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_22547.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -DCHECK_FUNCTION_EXISTS=strerror  -Werror=unguarded-availability -Werror=unguarded-availability-new -Werror=unused-command-line-argument -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_22547.dir/CheckFunctionExists.c.o -o cmTC_22547
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "CMakeLists.txt:495 (check_symbol_exists)"
+    checks:
+      - "Looking for __cpuid_count"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ei0GtS"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ei0GtS"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_CPUID_GNU"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ei0GtS'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_af138/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_af138.dir/build.make CMakeFiles/cmTC_af138.dir/build
+        Building C object CMakeFiles/cmTC_af138.dir/CheckSymbolExists.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_af138.dir/CheckSymbolExists.c.o -MF CMakeFiles/cmTC_af138.dir/CheckSymbolExists.c.o.d -o CMakeFiles/cmTC_af138.dir/CheckSymbolExists.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ei0GtS/CheckSymbolExists.c
+        In file included from /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-ei0GtS/CheckSymbolExists.c:2:
+        /Library/Developer/CommandLineTools/usr/lib/clang/21/include/cpuid.h:14:2: error: this header is for x86 only
+           14 | #error this header is for x86 only
+              |  ^
+        /Library/Developer/CommandLineTools/usr/lib/clang/21/include/cpuid.h:312:5: error: invalid output constraint '=a' in asm
+          312 |     __cpuid(__leaf, __eax, __ebx, __ecx, __edx);
+              |     ^
+        /Library/Developer/CommandLineTools/usr/lib/clang/21/include/cpuid.h:274:11: note: expanded from macro '__cpuid'
+          274 |         : "=a"(__eax), "=r"(__ebx), "=c"(__ecx), "=d"(__edx)                   \\
+              |           ^
+        /Library/Developer/CommandLineTools/usr/lib/clang/21/include/cpuid.h:327:5: error: invalid output constraint '=a' in asm
+          327 |     __cpuid(__leaf, *__eax, *__ebx, *__ecx, *__edx);
+              |     ^
+        /Library/Developer/CommandLineTools/usr/lib/clang/21/include/cpuid.h:274:11: note: expanded from macro '__cpuid'
+          274 |         : "=a"(__eax), "=r"(__ebx), "=c"(__ecx), "=d"(__edx)                   \\
+              |           ^
+        /Library/Developer/CommandLineTools/usr/lib/clang/21/include/cpuid.h:341:5: error: invalid output constraint '=a' in asm
+          341 |     __cpuid_count(__leaf, __subleaf, *__eax, *__ebx, *__ecx, *__edx);
+              |     ^
+        /Library/Developer/CommandLineTools/usr/lib/clang/21/include/cpuid.h:281:11: note: expanded from macro '__cpuid_count'
+          281 |         : "=a"(__eax), "=r"(__ebx), "=c"(__ecx), "=d"(__edx)                   \\
+              |           ^
+        /Library/Developer/CommandLineTools/usr/lib/clang/21/include/cpuid.h:349:3: error: invalid output constraint '=a' in asm
+          349 |   __cpuid_count(__leaf, __subleaf, __cpu_info[0], __cpu_info[1], __cpu_info[2],
+              |   ^
+        /Library/Developer/CommandLineTools/usr/lib/clang/21/include/cpuid.h:281:11: note: expanded from macro '__cpuid_count'
+          281 |         : "=a"(__eax), "=r"(__ebx), "=c"(__ecx), "=d"(__edx)                   \\
+              |           ^
+        5 errors generated.
+        make[1]: *** [CMakeFiles/cmTC_af138.dir/CheckSymbolExists.c.o] Error 1
+        make: *** [cmTC_af138/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:506 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_CPUID_MS"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-G9v0IZ"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-G9v0IZ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_CPUID_MS"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-G9v0IZ'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_565ae/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_565ae.dir/build.make CMakeFiles/cmTC_565ae.dir/build
+        Building C object CMakeFiles/cmTC_565ae.dir/src.c.o
+        /usr/bin/cc -DHAVE_CPUID_MS  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_565ae.dir/src.c.o -MF CMakeFiles/cmTC_565ae.dir/src.c.o.d -o CMakeFiles/cmTC_565ae.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-G9v0IZ/src.c
+        In file included from /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-G9v0IZ/src.c:2:
+        /Library/Developer/CommandLineTools/usr/lib/clang/21/include/intrin.h:12:15: fatal error: 'intrin.h' file not found
+           12 | #include_next <intrin.h>
+              |               ^~~~~~~~~~
+        1 error generated.
+        make[1]: *** [CMakeFiles/cmTC_565ae.dir/src.c.o] Error 1
+        make: *** [cmTC_565ae/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCCompilerFlag.cmake:56 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:547 (check_c_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_NO_INTERPOSITION"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-IA1nTo"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-IA1nTo"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_NO_INTERPOSITION"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-IA1nTo'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_51620/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_51620.dir/build.make CMakeFiles/cmTC_51620.dir/build
+        Building C object CMakeFiles/cmTC_51620.dir/src.c.o
+        /usr/bin/cc -DHAVE_NO_INTERPOSITION  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -Werror=unguarded-availability -Werror=unguarded-availability-new -Werror=unused-command-line-argument -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk   -fno-semantic-interposition -MD -MT CMakeFiles/cmTC_51620.dir/src.c.o -MF CMakeFiles/cmTC_51620.dir/src.c.o.d -o CMakeFiles/cmTC_51620.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-IA1nTo/src.c
+        Linking C executable cmTC_51620
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_51620.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -Werror=unguarded-availability -Werror=unguarded-availability-new -Werror=unused-command-line-argument -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_51620.dir/src.c.o -o cmTC_51620
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:553 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_ATTRIBUTE_VISIBILITY_HIDDEN"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-JSC0Gc"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-JSC0Gc"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_ATTRIBUTE_VISIBILITY_HIDDEN"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-JSC0Gc'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_2dc36/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_2dc36.dir/build.make CMakeFiles/cmTC_2dc36.dir/build
+        Building C object CMakeFiles/cmTC_2dc36.dir/src.c.o
+        /usr/bin/cc -DHAVE_ATTRIBUTE_VISIBILITY_HIDDEN  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_2dc36.dir/src.c.o -MF CMakeFiles/cmTC_2dc36.dir/src.c.o.d -o CMakeFiles/cmTC_2dc36.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-JSC0Gc/src.c
+        Linking C executable cmTC_2dc36
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2dc36.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_2dc36.dir/src.c.o -o cmTC_2dc36
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:567 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_ATTRIBUTE_VISIBILITY_INTERNAL"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-qA5dSA"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-qA5dSA"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_ATTRIBUTE_VISIBILITY_INTERNAL"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-qA5dSA'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_5ecf0/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_5ecf0.dir/build.make CMakeFiles/cmTC_5ecf0.dir/build
+        Building C object CMakeFiles/cmTC_5ecf0.dir/src.c.o
+        /usr/bin/cc -DHAVE_ATTRIBUTE_VISIBILITY_INTERNAL  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_5ecf0.dir/src.c.o -MF CMakeFiles/cmTC_5ecf0.dir/src.c.o.d -o CMakeFiles/cmTC_5ecf0.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-qA5dSA/src.c
+        Linking C executable cmTC_5ecf0
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5ecf0.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_5ecf0.dir/src.c.o -o cmTC_5ecf0
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:581 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_ATTRIBUTE_ALIGNED"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-tGaaMt"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-tGaaMt"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_ATTRIBUTE_ALIGNED"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-tGaaMt'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_80a95/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_80a95.dir/build.make CMakeFiles/cmTC_80a95.dir/build
+        Building C object CMakeFiles/cmTC_80a95.dir/src.c.o
+        /usr/bin/cc -DHAVE_ATTRIBUTE_ALIGNED  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_80a95.dir/src.c.o -MF CMakeFiles/cmTC_80a95.dir/src.c.o.d -o CMakeFiles/cmTC_80a95.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-tGaaMt/src.c
+        Linking C executable cmTC_80a95
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_80a95.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_80a95.dir/src.c.o -o cmTC_80a95
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:596 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_BUILTIN_ASSUME_ALIGNED"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-JYcZxQ"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-JYcZxQ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_BUILTIN_ASSUME_ALIGNED"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-JYcZxQ'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_5e594/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_5e594.dir/build.make CMakeFiles/cmTC_5e594.dir/build
+        Building C object CMakeFiles/cmTC_5e594.dir/src.c.o
+        /usr/bin/cc -DHAVE_BUILTIN_ASSUME_ALIGNED  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -fno-lto -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_5e594.dir/src.c.o -MF CMakeFiles/cmTC_5e594.dir/src.c.o.d -o CMakeFiles/cmTC_5e594.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-JYcZxQ/src.c
+        Linking C executable cmTC_5e594
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5e594.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -fno-lto -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_5e594.dir/src.c.o -o cmTC_5e594
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:614 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_BUILTIN_CTZ"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-fZRYup"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-fZRYup"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_BUILTIN_CTZ"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-fZRYup'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_8fa30/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_8fa30.dir/build.make CMakeFiles/cmTC_8fa30.dir/build
+        Building C object CMakeFiles/cmTC_8fa30.dir/src.c.o
+        /usr/bin/cc -DHAVE_BUILTIN_CTZ  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -fno-lto -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_8fa30.dir/src.c.o -MF CMakeFiles/cmTC_8fa30.dir/src.c.o.d -o CMakeFiles/cmTC_8fa30.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-fZRYup/src.c
+        Linking C executable cmTC_8fa30
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8fa30.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -fno-lto -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_8fa30.dir/src.c.o -o cmTC_8fa30
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:632 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_BUILTIN_CTZLL"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-7w066a"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-7w066a"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_BUILTIN_CTZLL"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-7w066a'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_11ac0/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_11ac0.dir/build.make CMakeFiles/cmTC_11ac0.dir/build
+        Building C object CMakeFiles/cmTC_11ac0.dir/src.c.o
+        /usr/bin/cc -DHAVE_BUILTIN_CTZLL  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -fno-lto -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_11ac0.dir/src.c.o -MF CMakeFiles/cmTC_11ac0.dir/src.c.o.d -o CMakeFiles/cmTC_11ac0.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-7w066a/src.c
+        Linking C executable cmTC_11ac0
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_11ac0.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -fno-lto -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_11ac0.dir/src.c.o -o cmTC_11ac0
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:649 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_PTRDIFF_T"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-iPg1VH"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-iPg1VH"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_PTRDIFF_T"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-iPg1VH'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_60dea/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_60dea.dir/build.make CMakeFiles/cmTC_60dea.dir/build
+        Building C object CMakeFiles/cmTC_60dea.dir/src.c.o
+        /usr/bin/cc -DHAVE_PTRDIFF_T  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_60dea.dir/src.c.o -MF CMakeFiles/cmTC_60dea.dir/src.c.o.d -o CMakeFiles/cmTC_60dea.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-iPg1VH/src.c
+        Linking C executable cmTC_60dea
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_60dea.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_60dea.dir/src.c.o -o cmTC_60dea
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCCompilerFlag.cmake:56 (cmake_check_compiler_flag)"
+      - "cmake/detect-intrinsics.cmake:7 (check_c_compiler_flag)"
+      - "CMakeLists.txt:812 (check_armv8_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_MARCH_ARMV8_CRC"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-p69ya9"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-p69ya9"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_MARCH_ARMV8_CRC"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-p69ya9'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_4a1fb/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_4a1fb.dir/build.make CMakeFiles/cmTC_4a1fb.dir/build
+        Building C object CMakeFiles/cmTC_4a1fb.dir/src.c.o
+        /usr/bin/cc -DHAVE_MARCH_ARMV8_CRC  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk   -march=armv8-a+crc -MD -MT CMakeFiles/cmTC_4a1fb.dir/src.c.o -MF CMakeFiles/cmTC_4a1fb.dir/src.c.o.d -o CMakeFiles/cmTC_4a1fb.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-p69ya9/src.c
+        Linking C executable cmTC_4a1fb
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4a1fb.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_4a1fb.dir/src.c.o -o cmTC_4a1fb
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:30 (check_c_source_compiles)"
+      - "CMakeLists.txt:812 (check_armv8_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_ARMV8_INLINE_ASM"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-fWIi0i"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-fWIi0i"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_ARMV8_INLINE_ASM"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-fWIi0i'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_56c38/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_56c38.dir/build.make CMakeFiles/cmTC_56c38.dir/build
+        Building C object CMakeFiles/cmTC_56c38.dir/src.c.o
+        /usr/bin/cc -DHAVE_ARMV8_INLINE_ASM  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -march=armv8-a+crc  -fno-lto -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_56c38.dir/src.c.o -MF CMakeFiles/cmTC_56c38.dir/src.c.o.d -o CMakeFiles/cmTC_56c38.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-fWIi0i/src.c
+        Linking C executable cmTC_56c38
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_56c38.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -march=armv8-a+crc  -fno-lto -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_56c38.dir/src.c.o -o cmTC_56c38
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:44 (check_c_source_compiles)"
+      - "CMakeLists.txt:812 (check_armv8_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_ARMV8_INTRIN"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-X9VaOQ"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-X9VaOQ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_ARMV8_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-X9VaOQ'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_5d1ee/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_5d1ee.dir/build.make CMakeFiles/cmTC_5d1ee.dir/build
+        Building C object CMakeFiles/cmTC_5d1ee.dir/src.c.o
+        /usr/bin/cc -DHAVE_ARMV8_INTRIN  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -march=armv8-a+crc  -fno-lto -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_5d1ee.dir/src.c.o -MF CMakeFiles/cmTC_5d1ee.dir/src.c.o.d -o CMakeFiles/cmTC_5d1ee.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-X9VaOQ/src.c
+        Linking C executable cmTC_5d1ee
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5d1ee.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -march=armv8-a+crc  -fno-lto -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_5d1ee.dir/src.c.o -o cmTC_5d1ee
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:224 (check_c_source_compiles)"
+      - "CMakeLists.txt:829 (check_neon_compiler_flag)"
+    checks:
+      - "Performing Test NEON_AVAILABLE"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-vAuuBV"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-vAuuBV"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "NEON_AVAILABLE"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-vAuuBV'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_c479c/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_c479c.dir/build.make CMakeFiles/cmTC_c479c.dir/build
+        Building C object CMakeFiles/cmTC_c479c.dir/src.c.o
+        /usr/bin/cc -DNEON_AVAILABLE  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -mfpu=neon  -fno-lto -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_c479c.dir/src.c.o -MF CMakeFiles/cmTC_c479c.dir/src.c.o.d -o CMakeFiles/cmTC_c479c.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-vAuuBV/src.c
+        clang: error: unsupported option '-mfpu=' for target 'arm64-apple-macosx'
+        make[1]: *** [CMakeFiles/cmTC_c479c.dir/src.c.o] Error 1
+        make: *** [cmTC_c479c/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCCompilerFlag.cmake:56 (cmake_check_compiler_flag)"
+      - "cmake/detect-intrinsics.cmake:62 (check_c_compiler_flag)"
+      - "CMakeLists.txt:850 (check_armv6_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_MARCH_ARMV6"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-xUBCQI"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-xUBCQI"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_MARCH_ARMV6"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-xUBCQI'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_560d9/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_560d9.dir/build.make CMakeFiles/cmTC_560d9.dir/build
+        Building C object CMakeFiles/cmTC_560d9.dir/src.c.o
+        /usr/bin/cc -DHAVE_MARCH_ARMV6  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk   -march=armv6 -MD -MT CMakeFiles/cmTC_560d9.dir/src.c.o -MF CMakeFiles/cmTC_560d9.dir/src.c.o.d -o CMakeFiles/cmTC_560d9.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-xUBCQI/src.c
+        clang: error: unsupported argument 'armv6' to option '-march='
+        make[1]: *** [CMakeFiles/cmTC_560d9.dir/src.c.o] Error 1
+        make: *** [cmTC_560d9/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCCompilerFlag.cmake:56 (cmake_check_compiler_flag)"
+      - "cmake/detect-intrinsics.cmake:66 (check_c_compiler_flag)"
+      - "CMakeLists.txt:850 (check_armv6_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_WA_MARCH_ARMV6"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-Jb471V"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-Jb471V"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_WA_MARCH_ARMV6"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-Jb471V'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_13336/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_13336.dir/build.make CMakeFiles/cmTC_13336.dir/build
+        Building C object CMakeFiles/cmTC_13336.dir/src.c.o
+        /usr/bin/cc -DHAVE_WA_MARCH_ARMV6  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk   -Wa,-march=armv6 -MD -MT CMakeFiles/cmTC_13336.dir/src.c.o -MF CMakeFiles/cmTC_13336.dir/src.c.o.d -o CMakeFiles/cmTC_13336.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-Jb471V/src.c
+        Linking C executable cmTC_13336
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_13336.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_13336.dir/src.c.o -o cmTC_13336
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:75 (check_c_source_compiles)"
+      - "CMakeLists.txt:850 (check_armv6_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_ARMV6_INLINE_ASM"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-il1kC8"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-il1kC8"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_ARMV6_INLINE_ASM"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-il1kC8'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_c5fe1/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_c5fe1.dir/build.make CMakeFiles/cmTC_c5fe1.dir/build
+        Building C object CMakeFiles/cmTC_c5fe1.dir/src.c.o
+        /usr/bin/cc -DHAVE_ARMV6_INLINE_ASM  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -Wa,-march=armv6  -fno-lto -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_c5fe1.dir/src.c.o -MF CMakeFiles/cmTC_c5fe1.dir/src.c.o.d -o CMakeFiles/cmTC_c5fe1.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-il1kC8/src.c
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-il1kC8/src.c:3:22: error: unrecognized instruction mnemonic, did you mean: uqsub?
+            3 |             __asm__( "uqsub16 %0, %1, %2" : "=r" (c) : "r" (a), "r" (b) );
+              |                      ^
+        <inline asm>:1:2: note: instantiated into assembly here
+            1 |         uqsub16 x8, x8, x9
+              |         ^
+        1 error generated.
+        make[1]: *** [CMakeFiles/cmTC_c5fe1.dir/src.c.o] Error 1
+        make: *** [cmTC_c5fe1/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:85 (check_c_source_compiles)"
+      - "CMakeLists.txt:850 (check_armv6_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_ARMV6_INTRIN"
+    directories:
+      source: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-jh6hUM"
+      binary: "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-jh6hUM"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: "arm64"
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: "/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk"
+    buildResult:
+      variable: "HAVE_ARMV6_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-jh6hUM'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_3fabd/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_3fabd.dir/build.make CMakeFiles/cmTC_3fabd.dir/build
+        Building C object CMakeFiles/cmTC_3fabd.dir/src.c.o
+        /usr/bin/cc -DHAVE_ARMV6_INTRIN  -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w -Wa,-march=armv6  -fno-lto -std=c11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk -MD -MT CMakeFiles/cmTC_3fabd.dir/src.c.o -MF CMakeFiles/cmTC_3fabd.dir/src.c.o.d -o CMakeFiles/cmTC_3fabd.dir/src.c.o -c /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-jh6hUM/src.c
+        /Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/build/CMakeFiles/CMakeScratch/TryCompile-jh6hUM/src.c:10:20: error: call to undeclared function '__uqsub16'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+           10 |             return __uqsub16(a, b);
+              |                    ^
+        1 error generated.
+        make[1]: *** [CMakeFiles/cmTC_3fabd.dir/src.c.o] Error 1
+        make: *** [cmTC_3fabd/fast] Error 2
+        
+      exitCode: 2
+...

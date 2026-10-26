@@ -1,0 +1,9 @@
+/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/lib/libz-ng.a
+/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/include/zlib-ng.h
+/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/include/zlib_name_mangling-ng.h
+/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/include/zconf-ng.h
+/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/lib/pkgconfig/zlib-ng.pc
+/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/lib/cmake/zlib-ng/zlib-ng-targets.cmake
+/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/lib/cmake/zlib-ng/zlib-ng-targets-debug.cmake
+/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/lib/cmake/zlib-ng/zlib-ng-config.cmake
+/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/libz-ng-sys-a78be4a70ce127a7/out/lib/cmake/zlib-ng/zlib-ng-config-version.cmake

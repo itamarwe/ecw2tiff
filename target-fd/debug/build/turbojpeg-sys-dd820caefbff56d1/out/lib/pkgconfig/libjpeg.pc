@@ -1,0 +1,10 @@
+prefix=/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/turbojpeg-sys-dd820caefbff56d1/out
+exec_prefix=/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/turbojpeg-sys-dd820caefbff56d1/out
+libdir=/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/turbojpeg-sys-dd820caefbff56d1/out/lib
+includedir=/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/turbojpeg-sys-dd820caefbff56d1/out/include
+
+Name: libjpeg
+Description: A SIMD-accelerated JPEG codec that provides the libjpeg API
+Version: 3.1.0
+Libs: -L${libdir} -ljpeg
+Cflags: -I${includedir}

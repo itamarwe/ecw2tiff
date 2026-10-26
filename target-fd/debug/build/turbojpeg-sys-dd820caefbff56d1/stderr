@@ -1,0 +1,11 @@
+running: cd "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/turbojpeg-sys-dd820caefbff56d1/out/build" && CMAKE_PREFIX_PATH="" DESTDIR="" LC_ALL="C" "cmake" "/Users/itamarwe/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/turbojpeg-sys-1.2.0/libjpeg-turbo" "-B" "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/turbojpeg-sys-dd820caefbff56d1/out/build" "-DCMAKE_OSX_ARCHITECTURES=arm64" "-DCMAKE_INSTALL_DEFAULT_LIBDIR=lib" "-DCMAKE_INSTALL_PREFIX=/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/turbojpeg-sys-dd820caefbff56d1/out" "-DCMAKE_C_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w" "-DCMAKE_C_COMPILER=/usr/bin/cc" "-DCMAKE_CXX_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w" "-DCMAKE_CXX_COMPILER=/usr/bin/c++" "-DCMAKE_ASM_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.5 -w" "-DCMAKE_ASM_COMPILER=/usr/bin/cc" "-DCMAKE_BUILD_TYPE=Debug" "-DENABLE_SHARED=0" "-DENABLE_STATIC=1" "-DREQUIRE_SIMD=ON"
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    CMAKE_ASM_COMPILER
+    CMAKE_ASM_FLAGS
+    CMAKE_CXX_COMPILER
+    CMAKE_CXX_FLAGS
+
+
+running: cd "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/turbojpeg-sys-dd820caefbff56d1/out/build" && DESTDIR="" LC_ALL="C" "cmake" "--build" "/Users/itamarwe/Documents/code/ecw2tiff/target-fd/debug/build/turbojpeg-sys-dd820caefbff56d1/out/build" "--target" "install" "--config" "Debug" "--parallel" "8"
