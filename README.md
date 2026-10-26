@@ -27,10 +27,38 @@ libjpeg-turbo — see below). Static binaries are also attached to each
 cargo build --release
 ```
 
-By default JPEG tiles are encoded with libjpeg-turbo (SIMD), which must be
-present on the system (`brew install jpeg-turbo` on macOS,
-`apt install libturbojpeg0-dev` on Debian/Ubuntu). For a pure-Rust binary
-with no native dependencies, build with:
+By default JPEG tiles are encoded with libjpeg-turbo (SIMD). `turbojpeg-sys`
+builds its own copy rather than looking for a system one, so what a default
+build needs is **cmake**:
+
+```bash
+brew install cmake            # macOS
+apt install cmake             # Debian/Ubuntu
+```
+
+Without it the build fails with:
+
+```text
+failed to execute command: No such file or directory (os error 2)
+is `cmake` not installed?
+```
+
+To link a system libjpeg-turbo instead of vendoring one, say so explicitly —
+installing the library and pkg-config alone changes nothing, because with
+`TURBOJPEG_SOURCE` unset the build never consults pkg-config:
+
+```bash
+brew install jpeg-turbo pkg-config
+TURBOJPEG_SOURCE=pkg-config \
+  PKG_CONFIG_PATH=/opt/homebrew/opt/jpeg-turbo/lib/pkgconfig \
+  cargo build --release
+```
+
+Both routes measure the same — 9.45 ms/tile linked against 9.59 vendored, on a
+327680x296960 ECW — so vendoring is only about which prerequisite you prefer.
+
+For a pure-Rust binary with no native dependencies and nothing to install,
+build with:
 
 ```bash
 cargo build --release --no-default-features
@@ -95,11 +123,32 @@ server), the crate also builds an in-process Python extension via
 directly — no per-tile process spawn, no intermediate file, and the tile
 is JPEG-encoded a single time from the decoded pixels.
 
+There are two ways in, and they differ in JPEG encoder:
+
+```bash
+pip install ecw2tiff                     # wheel: pure Rust, nothing to build
+pip install --no-binary ecw2tiff ecw2tiff # sdist: libjpeg-turbo SIMD
+```
+
+The wheels are self-contained and need no system libjpeg-turbo. Forcing the sdist
+build links it instead, which encodes JPEG tiles measurably faster — worth it for
+a resident tile server — and needs the Rust toolchain plus cmake, as in
+[Build](#build).
+
+Note that a cargo feature cannot be selected through `pip install`: maturin
+forwards `--config-settings=build-args` and `MATURIN_PEP517_ARGS` to
+`pep517 write-dist-info`, which rejects `--features` and fails the build. So the
+choice of encoder is the choice between the wheel and a source install, and
+`[tool.maturin] features` in `pyproject.toml` is what decides what a source
+install gets.
+
+To develop against it:
+
 ```bash
 pip install maturin
-maturin develop --release        # build + install into the active venv
-# (needs libjpeg-turbo present; add --no-default-features for pure Rust,
-#  or --features python,webp to enable WebP tile output)
+maturin develop --release                      # libjpeg-turbo (default)
+maturin develop --release --no-default-features # pure Rust, matching the wheels
+maturin develop --release -F webp              # add WebP tile output
 ```
 
 ```python
