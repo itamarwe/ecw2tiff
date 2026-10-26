@@ -39,6 +39,25 @@ cargo build --release --no-default-features
 (JPEG encoding is then ~20% slower end to end; all other codecs are
 unaffected.)
 
+`--compress deflate` uses the pure-Rust miniz_oxide backend by default.
+Deflate is by far the most expensive codec here — on an M1 roughly 90% of
+the CPU goes to compression against about 10% for the actual decode — so
+there is a faster option:
+
+```bash
+cargo build --release --features fast-deflate
+```
+
+That switches the backend to zlib-ng, whose NEON match-finder and
+checksums cut deflate CPU by about a quarter and raise end-to-end
+throughput by about a third (measured on an M1 over 6 interleaved runs of
+a 67 Mpixel region: median 42 -> 56 Mpixel/s, CPU 8.3s -> 5.9s). Run
+times are also noticeably more consistent.
+
+The trade is output about 4-5% larger at the same level, and a build that
+needs a C toolchain and cmake, which is why it is opt-in. Decoded pixels
+are identical either way.
+
 ## Usage
 
 ```bash
