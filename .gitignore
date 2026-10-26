@@ -1,4 +1,5 @@
 /target
+/target-*
 /dist
 
 # Python / maturin

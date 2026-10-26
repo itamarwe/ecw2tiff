@@ -24,6 +24,11 @@ default = ["turbo"]
 # JPEG tile encoding via libjpeg-turbo (SIMD; needs the native library).
 # Build with --no-default-features for a pure-Rust binary.
 turbo = ["dep:turbojpeg"]
+# Deflate via zlib-ng instead of the pure-Rust miniz_oxide backend. On Apple
+# Silicon its NEON match-finder and checksums cut deflate CPU by about a
+# quarter, at the cost of roughly 4-5% larger output at the same level, so it
+# is opt-in rather than default. Needs a C toolchain and cmake to build.
+fast-deflate = ["flate2/zlib-ng"]
 # Python extension module (PyO3 + maturin). Enabled by the maturin build.
 python = ["dep:pyo3"]
 # WebP tile output for the Python binding (links libwebp).
