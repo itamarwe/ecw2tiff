@@ -78,6 +78,63 @@ fn strips_equal_full_decode() {
     }
 }
 
+fn decode_channels(img: &EcwImage, w: Window, ch: usize) -> Vec<u8> {
+    let row = w.out_width as usize * ch;
+    let mut out = vec![0u8; row * w.out_height as usize];
+    let mut r = img
+        .rows_with_channels(w, 0, w.out_height, ch)
+        .expect("rows_with_channels");
+    for chunk in out.chunks_exact_mut(row) {
+        r.read_row(chunk).expect("read_row");
+    }
+    out
+}
+
+/// Asking for more bands of a multiband image adds samples after the
+/// default ones without changing them, and fewer bands drop trailing ones.
+#[test]
+fn extra_bands_extend_default_output() {
+    let img = EcwImage::open(&data("synth_multi.ecw")).unwrap();
+    let info = img.info();
+    assert_eq!(info.bands, 4);
+    assert_eq!(info.channels(), 3);
+    assert_eq!(info.max_channels(), 4);
+    let (w, h) = (info.width, info.height);
+    for (nx, ny) in [(w, h), (w / 3, h / 3), (w / 2 + 1, h / 5)] {
+        let win = window(0, 0, w, h, nx, ny);
+        let three = decode(&img, win, 0, ny);
+        let four = decode_channels(&img, win, 4);
+        let one = decode_channels(&img, win, 1);
+        assert_eq!(four.len(), three.len() / 3 * 4);
+        for (p, px) in four.chunks_exact(4).enumerate() {
+            assert_eq!(px[..3], three[p * 3..p * 3 + 3], "pixel {p} at {nx}x{ny}");
+            assert_eq!(px[0], one[p], "pixel {p} at {nx}x{ny}");
+        }
+        // The fourth band is real data, not padding.
+        assert!(four.chunks_exact(4).any(|px| px[3] != px[0]));
+    }
+}
+
+#[test]
+fn unavailable_channel_counts_are_rejected() {
+    let full = |img: &EcwImage| {
+        let i = img.info();
+        window(0, 0, i.width, i.height, i.width, i.height)
+    };
+    let multi = EcwImage::open(&data("synth_multi.ecw")).unwrap();
+    let ycc = EcwImage::open(&data("synth_ycc.ecw")).unwrap();
+    let grey = EcwImage::open(&data("synth_grey.ecw")).unwrap();
+    let cases = [(&multi, 0), (&multi, 5), (&ycc, 1), (&ycc, 4), (&grey, 2)];
+    for (img, ch) in cases {
+        let w = full(img);
+        let err = img
+            .rows_with_channels(w, 0, w.out_height, ch)
+            .err()
+            .unwrap_or_else(|| panic!("{ch} channel(s) should be rejected"));
+        assert_eq!(err.kind(), ecw2tiff::codec::ErrorKind::InvalidRequest);
+    }
+}
+
 #[test]
 fn concurrent_readers_share_one_image() {
     let img = EcwImage::open(&data("synth_ycc.ecw")).unwrap();

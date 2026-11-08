@@ -18,6 +18,8 @@ USAGE:
 OPTIONS:
     --info                 print header information and exit
     --compress <c>         jpeg[:quality] | deflate[:level] | none  (default jpeg:87)
+    --bands <n>            output the first n bands of a multiband image, e.g. 4 for
+                           RGB + near-infrared (default: up to 3). JPEG takes 1 or 3.
     --scale <n>            decode at 1/n resolution, n a power of two (default 1)
     --region <x,y,w,h>     decode only this pixel rectangle (full-res coordinates)
     --tile <n>             output tile size, multiple of 16 (default 512)
@@ -33,6 +35,7 @@ struct Opts {
     output: Option<PathBuf>,
     info: bool,
     codec: Codec,
+    bands: Option<usize>,
     scale: u32,
     region: Option<(u32, u32, u32, u32)>,
     tile: usize,
@@ -46,6 +49,7 @@ fn parse_args() -> Opts {
         output: None,
         info: false,
         codec: Codec::Jpeg(87),
+        bands: None,
         scale: 1,
         region: None,
         tile: 512,
@@ -67,6 +71,17 @@ fn parse_args() -> Opts {
                     "none" => Codec::None,
                     _ => usage(),
                 };
+            }
+            "--bands" => {
+                let n: usize = args
+                    .next()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or_else(|| usage());
+                if n == 0 {
+                    eprintln!("error: --bands must be at least 1");
+                    exit(2);
+                }
+                o.bands = Some(n);
             }
             "--scale" => {
                 o.scale = args
@@ -180,7 +195,24 @@ fn main() {
     let number_x = rw.div_ceil(opts.scale);
     let number_y = rh.div_ceil(opts.scale);
 
-    let ch = h.channels();
+    let ch = opts.bands.unwrap_or_else(|| h.channels());
+    if opts.bands.is_some() && h.color_model == ColorModel::YCbCr && ch != 3 {
+        eprintln!("error: --bands {ch}: this is a YCbCr image, which always outputs 3 bands");
+        exit(2);
+    }
+    if ch > h.max_channels() {
+        eprintln!(
+            "error: --bands {ch}: the image has {} band(s) available",
+            h.max_channels()
+        );
+        exit(2);
+    }
+    if matches!(opts.codec, Codec::Jpeg(_)) && ch != 1 && ch != 3 {
+        eprintln!(
+            "error: JPEG compression holds 1 or 3 bands, not {ch}; use --compress deflate or none"
+        );
+        exit(2);
+    }
     // Map common ER Mapper projection/datum names to EPSG codes.
     let epsg_from_names: Option<u16> = if h.datum == "WGS84" {
         if h.projection == "GEODETIC" {
@@ -282,7 +314,8 @@ fn main() {
                         out_width: number_x,
                         out_height: number_y,
                     };
-                    let mut region = match ecw_ref.rows(window, row0, row1 - row0) {
+                    let mut region = match ecw_ref.rows_with_channels(window, row0, row1 - row0, ch)
+                    {
                         Ok(r) => r,
                         Err(e) => {
                             decode_err.lock().unwrap().get_or_insert(e.to_string());

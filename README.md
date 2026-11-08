@@ -80,7 +80,15 @@ ecw2tiff --compress none       input.ecw out.tif
 
 # limit decoding to 4 threads (default: all cores)
 ecw2tiff --threads 4 input.ecw out.tif
+
+# keep a 4th band, e.g. near-infrared in RGBN aerial imagery
+ecw2tiff --bands 4 --compress deflate input.ecw rgbn.tif
 ```
+
+Multiband images are written with their first three bands by default.
+`--bands n` writes the first `n` instead (bands past the third become TIFF
+extra samples). JPEG holds only 1 or 3 bands, so use `deflate` or `none`
+for any other count.
 
 Output is always little-endian BigTIFF (safe for >4 GB images), tiled
 (default 512x512), with `ModelPixelScale`/`ModelTiepoint` and a GeoKey

@@ -36,8 +36,24 @@ impl<'a> RowReader<'a> {
         win: Window,
         first_row: u32,
         row_count: u32,
+        channels: usize,
     ) -> Result<RowReader<'a>> {
         let info = &layout.info;
+        let valid = match info.color_model {
+            ColorModel::YCbCr => channels == 3,
+            _ => (1..=info.max_channels()).contains(&channels),
+        };
+        if !valid {
+            return Err(Error::request(format!(
+                "cannot output {channels} channel(s): the image allows 1 to {}{}",
+                info.max_channels(),
+                if info.color_model == ColorModel::YCbCr {
+                    " (YCbCr: exactly 3)"
+                } else {
+                    ""
+                }
+            )));
+        }
         let Window {
             mut x0,
             mut y0,
@@ -115,7 +131,6 @@ impl<'a> RowReader<'a> {
             .first()
             .copied()
             .filter(|&s| col_pos.iter().enumerate().all(|(i, &p)| p == s + i));
-        let channels = info.channels();
         let top = info.stages - 1 - j;
         // Size of plane G_j. With grids that are not exact halves the reduced
         // window can fall outside it; the spec leaves that undefined.

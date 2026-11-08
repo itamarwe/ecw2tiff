@@ -54,6 +54,7 @@ const TAG_TILE_WIDTH: u16 = 322;
 const TAG_TILE_LENGTH: u16 = 323;
 const TAG_TILE_OFFSETS: u16 = 324;
 const TAG_TILE_BYTECOUNTS: u16 = 325;
+const TAG_EXTRA_SAMPLES: u16 = 338;
 const TAG_SAMPLE_FORMAT: u16 = 339;
 const TAG_YCBCR_SUBSAMPLING: u16 = 530;
 const TAG_MODEL_PIXEL_SCALE: u16 = 33550;
@@ -225,6 +226,18 @@ impl<W: Write + Seek> TiffWriter<W> {
             tile.is_multiple_of(16),
             "tile size must be a multiple of 16"
         );
+        if channels == 0 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "at least one channel is required",
+            ));
+        }
+        if matches!(codec, Codec::Jpeg(_)) && channels != 1 && channels != 3 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!("JPEG tiles hold 1 or 3 channels, not {channels}"),
+            ));
+        }
         // BigTIFF header: II, 43, bytesize-of-offsets 8, 0, offset to first IFD
         // (patched at finish time).
         w.write_all(b"II")?;
@@ -289,15 +302,23 @@ impl<W: Write + Seek> TiffWriter<W> {
         // Note: with Compression=7 each tile is a self-contained JPEG stream;
         // its internal color space is YCbCr but readers key off the JPEG
         // headers, so Photometric stays RGB unless we write raw YCbCr.
-        let photometric: u16 = if self.channels == 1 {
-            1 // BlackIsZero
+        // 1-2 channels: grey; 3 or more: RGB. Channels past the photometric
+        // ones (e.g. near-infrared) are declared as unspecified extra samples.
+        let (photometric, colour_channels): (u16, usize) = if self.channels < 3 {
+            (1, 1) // BlackIsZero
         } else {
             match self.codec {
-                Codec::Jpeg(_) => 6, // YCbCr (as produced by the JPEG encoder)
-                _ => 2,              // RGB
+                Codec::Jpeg(_) => (6, 3), // YCbCr (as produced by the JPEG encoder)
+                _ => (2, 3),              // RGB
             }
         };
         entries.push(push_shorts(TAG_PHOTOMETRIC, &[photometric]));
+        if self.channels > colour_channels {
+            entries.push(push_shorts(
+                TAG_EXTRA_SAMPLES,
+                &vec![0u16; self.channels - colour_channels],
+            ));
+        }
         entries.push(IfdEntry {
             tag: TAG_IMAGE_DESCRIPTION,
             typ: TYPE_ASCII,
