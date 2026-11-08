@@ -106,12 +106,12 @@ fn extra_bands_extend_default_output() {
         let four = decode_channels(&img, win, 4);
         let one = decode_channels(&img, win, 1);
         assert_eq!(four.len(), three.len() / 3 * 4);
-        for (p, px) in four.chunks_exact(4).enumerate() {
+        for (p, px) in four.as_chunks::<4>().0.iter().enumerate() {
             assert_eq!(px[..3], three[p * 3..p * 3 + 3], "pixel {p} at {nx}x{ny}");
             assert_eq!(px[0], one[p], "pixel {p} at {nx}x{ny}");
         }
         // The fourth band is real data, not padding.
-        assert!(four.chunks_exact(4).any(|px| px[3] != px[0]));
+        assert!(four.as_chunks::<4>().0.iter().any(|px| px[3] != px[0]));
     }
 }
 

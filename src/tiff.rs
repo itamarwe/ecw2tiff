@@ -63,6 +63,7 @@ const TAG_GEO_KEY_DIRECTORY: u16 = 34735;
 const TAG_GEO_ASCII_PARAMS: u16 = 34737;
 
 const TYPE_SHORT: u16 = 3;
+const TYPE_LONG: u16 = 4;
 const TYPE_ASCII: u16 = 2;
 const TYPE_DOUBLE: u16 = 12;
 const TYPE_LONG8: u16 = 16;
@@ -283,15 +284,26 @@ impl<W: Write + Seek> TiffWriter<W> {
             count: vals.len() as u64,
             data: vals.iter().flat_map(|v| v.to_le_bytes()).collect(),
         };
-        let push_long = |tag: u16, v: u64| IfdEntry {
-            tag,
-            typ: TYPE_LONG8,
-            count: 1,
-            data: v.to_le_bytes().to_vec(),
+        // Image size as LONG, the type libtiff writes and every reader accepts; some (e.g.
+        // LibTiff.NET) ignore a LONG8 ImageWidth/ImageLength and then refuse the file.
+        // LONG8 only for sizes past 2^32 - 1, which no ECW reaches.
+        let push_size = |tag: u16, v: u64| match u32::try_from(v) {
+            Ok(v32) => IfdEntry {
+                tag,
+                typ: TYPE_LONG,
+                count: 1,
+                data: v32.to_le_bytes().to_vec(),
+            },
+            Err(_) => IfdEntry {
+                tag,
+                typ: TYPE_LONG8,
+                count: 1,
+                data: v.to_le_bytes().to_vec(),
+            },
         };
 
-        entries.push(push_long(TAG_IMAGE_WIDTH, self.width));
-        entries.push(push_long(TAG_IMAGE_LENGTH, self.height));
+        entries.push(push_size(TAG_IMAGE_WIDTH, self.width));
+        entries.push(push_size(TAG_IMAGE_LENGTH, self.height));
         entries.push(push_shorts(TAG_BITS_PER_SAMPLE, &vec![8u16; self.channels]));
         let compression: u16 = match self.codec {
             Codec::Jpeg(_) => 7,
@@ -470,5 +482,71 @@ impl<W: Write + Seek> TiffWriter<W> {
         self.w.write_all(&ifd_pos.to_le_bytes())?;
         self.w.flush()?;
         Ok(self.w)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
+
+    /// (tag, type, count, inline value bytes) of each IFD entry in a BigTIFF.
+    fn ifd_entries(bytes: &[u8]) -> Vec<(u16, u16, u64, [u8; 8])> {
+        let u16_at = |o: usize| u16::from_le_bytes(bytes[o..o + 2].try_into().unwrap());
+        let u64_at = |o: usize| u64::from_le_bytes(bytes[o..o + 8].try_into().unwrap());
+        let ifd = u64_at(8) as usize;
+        (0..u64_at(ifd) as usize)
+            .map(|i| {
+                let e = ifd + 8 + i * 20;
+                let value: [u8; 8] = bytes[e + 12..e + 20].try_into().unwrap();
+                (u16_at(e), u16_at(e + 2), u64_at(e + 4), value)
+            })
+            .collect()
+    }
+
+    fn write_tiff(channels: usize, codec: Codec) -> Vec<u8> {
+        let (w, h, tile) = (40usize, 24usize, 16usize);
+        let pixels = vec![7u8; w * h * channels];
+        let mut tw = TiffWriter::new(
+            Cursor::new(Vec::new()),
+            w as u64,
+            h as u64,
+            channels,
+            codec,
+            tile,
+            None,
+        )
+        .unwrap();
+        for tr in 0..h.div_ceil(tile) {
+            let rows = tile.min(h - tr * tile);
+            let start = tr * tile * w * channels;
+            let enc = encode_tile_row(&pixels[start..], rows, w, channels, tile, codec);
+            tw.write_tile_row(tr, &enc).unwrap();
+        }
+        tw.finish().unwrap().into_inner()
+    }
+
+    #[test]
+    fn image_size_is_written_as_long() {
+        let entries = ifd_entries(&write_tiff(3, Codec::None));
+        for (tag, expected) in [(TAG_IMAGE_WIDTH, 40u32), (TAG_IMAGE_LENGTH, 24)] {
+            let (_, typ, count, value) = *entries.iter().find(|e| e.0 == tag).unwrap();
+            assert_eq!((typ, count), (TYPE_LONG, 1), "tag {tag}");
+            assert_eq!(u32::from_le_bytes(value[..4].try_into().unwrap()), expected);
+        }
+    }
+
+    #[test]
+    fn extra_bands_are_declared() {
+        let extra = |channels| {
+            ifd_entries(&write_tiff(channels, Codec::Deflate(1)))
+                .into_iter()
+                .find(|e| e.0 == TAG_EXTRA_SAMPLES)
+                .map(|e| e.2)
+        };
+        assert_eq!(extra(1), None);
+        assert_eq!(extra(2), Some(1));
+        assert_eq!(extra(3), None);
+        assert_eq!(extra(4), Some(1));
     }
 }
