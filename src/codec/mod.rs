@@ -134,12 +134,20 @@ pub struct ImageInfo {
 }
 
 impl ImageInfo {
-    /// Number of interleaved 8-bit samples per output pixel.
+    /// Default number of interleaved 8-bit samples per output pixel: at most
+    /// 3 for multiband images. [`EcwImage::rows_with_channels`] can ask for more.
     pub fn channels(&self) -> usize {
+        self.max_channels().min(3)
+    }
+
+    /// Largest channel count [`EcwImage::rows_with_channels`] accepts: 1 for
+    /// greyscale, 3 for YCbCr, every band otherwise (e.g. 4 for RGB plus
+    /// near-infrared).
+    pub fn max_channels(&self) -> usize {
         match self.color_model {
             ColorModel::Greyscale => 1,
             ColorModel::YCbCr => 3,
-            ColorModel::Unspecified | ColorModel::Multiband | ColorModel::Rgb => self.bands.min(3),
+            ColorModel::Unspecified | ColorModel::Multiband | ColorModel::Rgb => self.bands,
         }
     }
 }
@@ -189,8 +197,28 @@ impl EcwImage {
         &self.layout.stages
     }
 
-    /// Reader producing output rows `first_row .. first_row + row_count` of `window`.
+    /// Reader producing output rows `first_row .. first_row + row_count` of
+    /// `window`, with [`ImageInfo::channels`] samples per pixel.
     pub fn rows(&self, window: Window, first_row: u32, row_count: u32) -> Result<RowReader<'_>> {
-        RowReader::new(&self.file, &self.layout, window, first_row, row_count)
+        self.rows_with_channels(window, first_row, row_count, self.info().channels())
+    }
+
+    /// Like [`EcwImage::rows`], but with the first `channels` bands per pixel,
+    /// from 1 to [`ImageInfo::max_channels`] (YCbCr images always give 3).
+    pub fn rows_with_channels(
+        &self,
+        window: Window,
+        first_row: u32,
+        row_count: u32,
+        channels: usize,
+    ) -> Result<RowReader<'_>> {
+        RowReader::new(
+            &self.file,
+            &self.layout,
+            window,
+            first_row,
+            row_count,
+            channels,
+        )
     }
 }
