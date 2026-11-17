@@ -7,6 +7,14 @@ use std::process::exit;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{mpsc, Mutex};
 
+fn epsg_from_string(s: &str) -> Option<u16> {
+    if let Some(epsg) = s.strip_prefix("EPSG:") {
+        epsg.parse().ok()
+    } else {
+        None
+    }
+}
+
 fn usage() -> ! {
     eprintln!(
         "ecw2tiff - convert ECW imagery to tiled BigTIFF (clean-room decoder)
@@ -228,10 +236,10 @@ fn main() {
                 .filter(|z| (1..=60).contains(z))
                 .map(|z| 32700 + z)
         } else {
-            None
+            epsg_from_string(&h.datum)
         }
     } else {
-        None
+        epsg_from_string(&h.projection).or(epsg_from_string(&h.datum))
     };
     let epsg = h.epsg.or(epsg_from_names);
     let geo = Some(GeoInfo {
